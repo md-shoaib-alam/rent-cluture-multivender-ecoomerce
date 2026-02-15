@@ -4,6 +4,8 @@ import "./globals.css";
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
 import { Providers } from "@/components/providers";
+import { CartDrawer } from "@/components/cart/cart-drawer";
+import { CookieConsent } from "@/components/shared/cookie-consent";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +32,8 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <Footer />
           </div>
+          <CartDrawer />
+          <CookieConsent />
         </Providers>
       </body>
     </html>

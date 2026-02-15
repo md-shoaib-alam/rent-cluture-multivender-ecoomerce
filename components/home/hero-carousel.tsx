@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Banner {
     id: string;
@@ -15,16 +16,31 @@ interface Banner {
     theme?: string;
 }
 
+function HeroSkeleton() {
+    return (
+        <div className="relative w-full h-[60vh] md:h-[calc(100vh-80px)] bg-gray-200 animate-pulse">
+            <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4">
+                <div className="h-4 w-32 bg-gray-300 rounded mb-4"></div>
+                <div className="h-12 w-64 bg-gray-300 rounded mb-6"></div>
+                <div className="h-12 w-40 bg-gray-300 rounded-full"></div>
+            </div>
+        </div>
+    );
+}
+
 export function HeroCarousel() {
     const [banners, setBanners] = useState<Banner[]>([]);
+    const [loading, setLoading] = useState(true);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000, stopOnInteraction: false })]);
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         let isMounted = true;
         
         const fetchBanners = async () => {
             try {
+                setLoading(true);
                 const res = await fetch('/api/banners?position=home&active=true');
                 if (res.ok && isMounted) {
                     const data = await res.json();
@@ -34,6 +50,10 @@ export function HeroCarousel() {
                 }
             } catch (error) {
                 console.error('Error fetching banners:', error);
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
         
@@ -43,6 +63,10 @@ export function HeroCarousel() {
             isMounted = false;
         };
     }, []);
+
+    const handleImageLoad = (id: string) => {
+        setLoadedImages(prev => new Set(prev).add(id));
+    };
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -68,16 +92,35 @@ export function HeroCarousel() {
         if (emblaApi) emblaApi.scrollNext();
     }, [emblaApi]);
 
+    if (loading) {
+        return <HeroSkeleton />;
+    }
+
+    if (banners.length === 0) {
+        return null;
+    }
+
     return (
         <div className="relative w-full overflow-hidden bg-gray-900 group">
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
                     {banners.map((slide) => (
                         <div key={slide.id} className="relative flex-[0_0_100%] min-w-0 h-[60vh] md:h-[calc(100vh-80px)]">
-                            <img
+                            {!loadedImages.has(slide.id) && (
+                                <div className="absolute inset-0 bg-gray-800 animate-pulse" />
+                            )}
+                            <Image
                                 src={slide.image}
                                 alt={slide.title}
-                                className="absolute inset-0 w-full h-full object-cover"
+                                fill
+                                priority={banners.indexOf(slide) === 0}
+                                loading={banners.indexOf(slide) === 0 ? "eager" : "lazy"}
+                                quality={90}
+                                sizes="100vw"
+                                onLoad={() => handleImageLoad(slide.id)}
+                                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${
+                                    loadedImages.has(slide.id) ? 'opacity-100' : 'opacity-0'
+                                }`}
                             />
                             {/* Overlay - adjusting opacity based on theme */}
                             <div className={`absolute inset-0 flex flex-col justify-center items-center text-center px-6 md:px-16 lg:px-24 ${slide.theme === 'red'
@@ -111,14 +154,14 @@ export function HeroCarousel() {
             {/* Navigation Arrows */}
             <button
                 onClick={scrollPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hidden md:flex items-center justify-center hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100 z-20"
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hidden md:flex items-center justify-center hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100 z-20 cursor-pointer"
                 aria-label="Previous slide"
             >
                 <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
             </button>
             <button
                 onClick={scrollNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hidden md:flex items-center justify-center hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100 z-20"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white hidden md:flex items-center justify-center hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100 z-20 cursor-pointer"
                 aria-label="Next slide"
             >
                 <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
@@ -129,7 +172,7 @@ export function HeroCarousel() {
                 {banners.map((_, index) => (
                     <button
                         key={index}
-                        className={`transition-all duration-300 rounded-full ${index === selectedIndex
+                        className={`transition-all duration-300 rounded-full cursor-pointer ${index === selectedIndex
                             ? 'bg-white w-8 h-2 md:w-12 md:h-3'
                             : 'bg-white/40 w-2 h-2 md:w-3 md:h-3 hover:bg-white/60'
                             }`}

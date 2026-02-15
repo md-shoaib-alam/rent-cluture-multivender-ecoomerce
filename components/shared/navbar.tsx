@@ -96,7 +96,7 @@ export function Navbar() {
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             {/* Search (placeholder) */}
-            <button className="hidden md:flex p-2 text-gray-600 hover:text-gray-900">
+            <button className="hidden md:flex p-2 text-gray-600 hover:text-gray-900 cursor-pointer">
               <span className="sr-only">Search</span>
               <svg
                 className="h-5 w-5"
@@ -113,6 +113,20 @@ export function Navbar() {
               </svg>
             </button>
 
+            {/* Cart */}
+            <button
+              onClick={toggleCart}
+              className="relative p-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+            >
+              <span className="sr-only">Cart</span>
+              <ShoppingCart className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs text-white">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
             {/* Auth */}
             {status === "loading" ? (
               <div className="hidden md:flex items-center">
@@ -122,7 +136,7 @@ export function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer"
                 >
                   <div className="h-8 w-8 rounded-full bg-rose-100 flex items-center justify-center">
                     <User className="h-4 w-4 text-rose-600" />
@@ -151,7 +165,7 @@ export function Navbar() {
                           setUserMenuOpen(false);
                           handleSignOut();
                         }}
-                        className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                        className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 cursor-pointer"
                       >
                         <LogOut className="h-4 w-4 inline mr-2" />
                         Sign Out
@@ -163,34 +177,20 @@ export function Navbar() {
             ) : (
               <div className="hidden md:flex items-center space-x-2">
                 <Link href="/login">
-                  <Button variant="ghost" size="sm">
-                    Login
+                  <Button 
+                    size="sm" 
+                    className="bg-black text-gray-300 hover:bg-gray-900 hover:text-white hover:font-bold transition-all"
+                  >
+                    Sign In
                   </Button>
-                </Link>
-                <Link href="/signup">
-                  <Button size="sm">Sign Up</Button>
                 </Link>
               </div>
             )}
 
-            {/* Cart */}
-            <button
-              onClick={toggleCart}
-              className="relative p-2 text-gray-600 hover:text-gray-900"
-            >
-              <span className="sr-only">Cart</span>
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900 text-xs text-white">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-gray-900"
+              className="md:hidden p-2 text-gray-600 hover:text-gray-900 cursor-pointer"
             >
               <span className="sr-only">Menu</span>
               {mobileMenuOpen ? (
@@ -261,12 +261,7 @@ export function Navbar() {
               ) : (
                 <div className="pt-4 flex flex-col space-y-2 px-3">
                   <Link href="/login">
-                    <Button variant="outline" className="w-full">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/signup">
-                    <Button className="w-full">Sign Up</Button>
+                    <Button className="w-full bg-black text-gray-300 hover:bg-gray-900 hover:text-white hover:font-bold transition-all">Sign In</Button>
                   </Link>
                 </div>
               )}

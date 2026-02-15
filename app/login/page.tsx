@@ -17,12 +17,18 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect already logged in users to home
+  // Redirect already logged in users based on role
   useEffect(() => {
-    if (status === "authenticated") {
-      router.push("/");
+    if (status === "authenticated" && session?.user) {
+      if (session.user.role === "ADMIN") {
+        router.push("/dashboard/admin");
+      } else if (session.user.role === "VENDOR") {
+        router.push("/dashboard/vendor");
+      } else {
+        router.push("/dashboard/customer");
+      }
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,15 +44,19 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError("Invalid email or password");
+        setLoading(false);
       } else {
+        // Wait a moment for the session to be established
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Get session to check role
         const sessionRes = await fetch("/api/auth/session");
-        const session = await sessionRes.json();
+        const sessionData = await sessionRes.json();
         
         // Redirect based on role
-        if (session?.user?.role === "ADMIN") {
+        if (sessionData?.user?.role === "ADMIN") {
           router.push("/dashboard/admin");
-        } else if (session?.user?.role === "VENDOR") {
+        } else if (sessionData?.user?.role === "VENDOR") {
           router.push("/dashboard/vendor");
         } else {
           router.push("/dashboard/customer");
@@ -55,7 +65,6 @@ export default function LoginPage() {
       }
     } catch (err) {
       setError("Something went wrong");
-    } finally {
       setLoading(false);
     }
   };

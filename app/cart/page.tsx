@@ -33,7 +33,7 @@ export default function CartPage() {
             <ShoppingBag className="h-16 w-16 mx-auto text-gray-400 mb-4" />
             <h2 className="text-2xl font-bold text-gray-900">Your cart is empty</h2>
             <p className="mt-2 text-gray-600">
-              Looks like you haven't added anything to your cart yet.
+              Looks like you haven&apos;t added anything to your cart yet.
             </p>
             <Link href="/categories">
               <Button className="mt-6">Browse Collection</Button>
@@ -53,7 +53,7 @@ export default function CartPage() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map((item) => (
-              <div key={item.productId} className="bg-white rounded-lg shadow p-6">
+              <div key={item.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex gap-4">
                   <div className="w-24 h-32 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
                     <img
@@ -66,7 +66,12 @@ export default function CartPage() {
                     <div className="flex justify-between">
                       <div>
                         <h3 className="font-semibold text-gray-900">{item.productName}</h3>
-                        <p className="text-sm text-gray-500">Size: {item.variantSize}</p>
+                        {item.variantSize && (
+                          <p className="text-sm text-gray-500">Size: {item.variantSize}</p>
+                        )}
+                        {item.variantColor && (
+                          <p className="text-sm text-gray-500">Color: {item.variantColor}</p>
+                        )}
                         <p className="text-sm text-gray-500">
                           {item.rentalStart && item.rentalEnd
                             ? `${new Date(item.rentalStart).toLocaleDateString()} - ${new Date(
@@ -76,7 +81,7 @@ export default function CartPage() {
                         </p>
                       </div>
                       <button
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() => removeItem(item.productId, item.variantId)}
                         className="text-gray-400 hover:text-red-500"
                       >
                         <Trash2 className="h-5 w-5" />
