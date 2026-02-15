@@ -333,7 +333,7 @@ export default function AddressesPage() {
                         required
                         value={formData.address1}
                         onChange={(e) => setFormData({ ...formData, address1: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 placeholder:text-gray-600"
                         placeholder="Street address, P.O. box"
                       />
                   </div>
@@ -344,7 +344,7 @@ export default function AddressesPage() {
                         type="text"
                         value={formData.address2}
                         onChange={(e) => setFormData({ ...formData, address2: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 placeholder:text-gray-600"
                         placeholder="Apartment, suite, building, floor, etc."
                       />
                   </div>
@@ -404,7 +404,7 @@ export default function AddressesPage() {
                         required
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-900 placeholder:text-gray-600"
                         placeholder="+91 9876543210"
                       />
                     </div>
