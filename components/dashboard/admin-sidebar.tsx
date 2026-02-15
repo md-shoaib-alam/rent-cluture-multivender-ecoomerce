@@ -41,6 +41,7 @@ export function AdminSidebar({
                 <NavItem href="/dashboard/admin/orders" icon="analytics" label="Revenue Analytics" active={isActive("/dashboard/admin/orders")} onClick={() => setOpen?.(false)} />
                 <NavItem href="/dashboard/admin/brands" icon="workspace_premium" label="Brands" active={isActive("/dashboard/admin/brands")} onClick={() => setOpen?.(false)} />
                 <NavItem href="/dashboard/admin/banners" icon="imagesmode" label="Hero Banners" active={isActive("/dashboard/admin/banners")} onClick={() => setOpen?.(false)} />
+                <NavItem href="/dashboard/admin/drops" icon="auto_awesome" label="Drops Section" active={isActive("/dashboard/admin/drops")} onClick={() => setOpen?.(false)} />
 
                 <div className="pt-4 pb-2">
                     <p className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">System</p>

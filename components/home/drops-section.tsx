@@ -39,7 +39,7 @@ export function DropsSection() {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('/api/products?limit=12');
+            const res = await fetch('/api/products?featured=true&limit=12');
             if (res.ok) {
                 const data = await res.json();
                 if (data.products && data.products.length > 0) {
