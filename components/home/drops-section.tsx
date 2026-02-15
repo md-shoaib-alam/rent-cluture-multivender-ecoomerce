@@ -177,7 +177,7 @@ export function DropsSection() {
 
                 {/* 3D Carousel */}
                 <div className="relative max-w-[1400px] mx-auto mb-12">
-                    <div className="overflow-hidden py-16" ref={emblaRef} style={{ perspective: '1000px' }}>
+                    <div className="overflow-hidden py-32" ref={emblaRef} style={{ perspective: '1000px' }}>
                         <div className="flex -ml-4 touch-pan-y items-center" style={{ transformStyle: 'preserve-3d' }}>
                             {products.map((product, index) => {
                                 const slideStyle = getSlideStyle(index);
@@ -186,7 +186,7 @@ export function DropsSection() {
                                 return (
                                     <div
                                         key={`${product.id}-${index}`}
-                                        className="flex-[0_0_50%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
+                                        className="flex-[0_0_70%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
                                         style={{
                                             perspective: '1000px',
                                             zIndex: slideStyle.zIndex
@@ -196,20 +196,20 @@ export function DropsSection() {
                                             className="transition-all duration-500 ease-out transform-gpu origin-bottom"
                                             style={{ ...slideStyle, zIndex: 'auto' }}
                                         >
-                                            <div className="relative aspect-square">
-                                                {/* Image Container - removed animate-float */}
-                                                <div>
+                                            <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-white">
+                                                {/* Image Container */}
+                                                <div className="w-full h-full">
                                                     <img
                                                         src={product.image}
                                                         alt={product.name}
-                                                        className="w-full h-full object-contain drop-shadow-xl"
+                                                        className="w-full h-full object-cover object-top"
                                                     />
                                                 </div>
-
-                                                {/* Shadow Effect */}
-                                                <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/20 rounded-[100%] blur-md transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
-                                                    }`}></div>
                                             </div>
+
+                                            {/* Shadow Effect */}
+                                            <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/20 rounded-[100%] blur-md transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+                                                }`}></div>
                                         </div>
                                     </div>
                                 );
@@ -261,6 +261,6 @@ export function DropsSection() {
                     </div>
                 )}
             </div>
-        </section>
+        </section >
     );
 }
