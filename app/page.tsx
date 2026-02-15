@@ -39,6 +39,7 @@ export default function HomePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -92,6 +93,11 @@ export default function HomePage() {
 
   const displayCategories = categories.length > 0 ? categories : demoCategories;
   const displayProducts = products.length > 0 ? products : demoProducts;
+
+  // Filter products by selected category
+  const filteredProducts = selectedCategory
+    ? displayProducts.filter((p) => p.category?.name?.toLowerCase() === selectedCategory.toLowerCase())
+    : displayProducts;
 
   const [bestsellerRef, bestsellerApi] = useEmblaCarousel({
     align: 'start',
@@ -170,9 +176,26 @@ export default function HomePage() {
       <section className="py-8 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 md:px-6 relative group/section">
           <div className="flex flex-wrap gap-3 justify-center mb-12">
-            <button className="bg-primary text-white font-semibold px-6 py-2 rounded-full shadow-md">All</button>
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`font-semibold px-6 py-2 rounded-full shadow-md transition-colors ${
+                selectedCategory === null
+                  ? "bg-primary text-white"
+                  : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
+              }`}
+            >
+              All
+            </button>
             {displayCategories.map(cat => (
-              <button key={cat.id} className="bg-white text-gray-700 border border-gray-200 font-semibold px-6 py-2 rounded-full hover:border-primary hover:text-primary transition-colors">
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.name)}
+                className={`font-semibold px-6 py-2 rounded-full transition-colors ${
+                  selectedCategory === cat.name
+                    ? "bg-primary text-white"
+                    : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
+                }`}
+              >
                 {cat.name}
               </button>
             ))}
@@ -202,7 +225,7 @@ export default function HomePage() {
 
           <div className="overflow-hidden p-4 -m-4" ref={bestsellerRef}>
             <div className="flex -ml-6">
-              {displayProducts.map((product) => (
+              {filteredProducts.map((product) => (
                 <div key={product.id} className="flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] pl-6 min-w-0">
                   <Link href={`/product/${product.id}`} className="group bg-white rounded-[2rem] p-3 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 block h-full">
                     <div className="relative aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-3 bg-gray-100">
@@ -286,7 +309,7 @@ export default function HomePage() {
                 <h2 className="text-xl font-bold text-gray-900">RentSquare</h2>
               </div>
               <p className="text-black text-sm leading-relaxed">
-                India's premium fashion rental marketplace. Authentic designer wear, verified quality, and secure transactions.
+                India&apos;s premium fashion rental marketplace. Authentic designer wear, verified quality, and secure transactions.
               </p>
             </div>
             <div>
