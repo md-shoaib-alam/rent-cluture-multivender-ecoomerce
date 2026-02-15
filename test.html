@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drips Culture Carousel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --grid-color: #e5e9f2;
+            --bg-color: #ffffff;
+            --text-main: #111;
+            --font-logo: 'Rubik Mono One', sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            /* Creating the engineering grid background */
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* --- Header Section --- */
+        header {
+            text-align: center;
+            margin-top: 40px;
+            z-index: 10;
+        }
+
+        .logo {
+            font-family: var(--font-logo);
+            font-size: 4rem;
+            color: white;
+            /* Text Stroke effect for the graffiti look */
+            -webkit-text-stroke: 2px black; 
+            letter-spacing: -2px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        /* The drop shadow effect on the text */
+        .logo::after {
+            content: 'CULTURE'; /* Overlaid text for style, simplified here */
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            font-family: 'Brush Script MT', cursive; 
+            font-size: 1.5rem;
+            color: black;
+            -webkit-text-stroke: 0;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* --- Carousel Section --- */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            perspective: 1000px; /* Essential for 3D effect */
+        }
+
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Ensure images don't overflow */
+        }
+
+        .card img {
+            width: 100%;
+            height: auto;
+            max-height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+        }
+
+        /* --- Details Panel (Bottom) --- */
+        .details-wrapper {
+            position: absolute;
+            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 20;
+            width: 100%;
+            max-width: 600px;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 1px solid #ddd;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .nav-btn:hover {
+            background: #f8f8f8;
+            transform: scale(1.05);
+        }
+
+        .info-card {
+            background: white;
+            padding: 15px 25px;
+            border: 1px solid #eee;
+            min-width: 300px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .product-name {
+            font-size: 0.85rem;
+            color: #555;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #000;
+            justify-content: flex-start;
+        }
+
+        .explore-btn {
+            background: black;
+            color: white;
+            border: none;
+            padding: 8px 0;
+            width: 100%;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        /* Animations for text change */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">DRIPS</div> <div class="subtitle">Hottest Drip From Around The World. Refreshed Daily.</div>
+    </header>
+
+    <div class="carousel-container">
+        <div class="carousel-track" id="track">
+            </div>
+
+        <div class="details-wrapper">
+            <button class="nav-btn" id="prev">&lt;</button>
+            
+            <div class="info-card">
+                <div id="info-content" class="fade-in">
+                    <div class="product-name" id="p-name">Loading...</div>
+                    <div class="price-row">
+                        <span id="p-price">---</span>
+                    </div>
+                    <button class="explore-btn">Explore</button>
+                </div>
+            </div>
+
+            <button class="nav-btn" id="next">&gt;</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. Data Setup (Using Unsplash images to mimic fashion items)
+        const products = [
+            {
+                id: 1,
+                name: "Fortsake Triple Threat Rivet Wrap Wide Pants",
+                price: "₹ 7,999",
+                img: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=500&q=80" // Pants
+            },
+            {
+                id: 2,
+                name: "Fragment Design X Travis Scott X Air Jordan 1",
+                price: "₹ 125,298",
+                img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=500&q=80" // Shoes
+            },
+            {
+                id: 3,
+                name: "Jacquemus Les Lunettes Bambino Sunglasses",
+                price: "₹ 27,895",
+                img: "https://images.unsplash.com/photo-1577803645773-f96470509666?auto=format&fit=crop&w=500&q=80" // Sunglasses
+            },
+            {
+                id: 4,
+                name: "Balenciaga Hourglass Small Handbag Blue",
+                price: "₹ 185,000",
+                img: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=500&q=80" // Bag
+            },
+            {
+                id: 5,
+                name: "Jean Paul Gaultier La Belle Eau De Parfum",
+                price: "₹ 9,500",
+                img: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=500&q=80" // Perfume/Bottle
+            },
+            {
+                id: 6,
+                name: "On Running Cloudmonster White/Black",
+                price: "₹ 16,999",
+                img: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=500&q=80" // Sport Shoe
+            }
+        ];
+
+        let currentIndex = 1; // Start at the second item (index 1)
+        const track = document.getElementById('track');
+        const pName = document.getElementById('p-name');
+        const pPrice = document.getElementById('p-price');
+        const infoContent = document.getElementById('info-content');
+
+        // 2. Initialize DOM
+        function init() {
+            products.forEach((product, index) => {
+                const el = document.createElement('div');
+                el.className = 'card';
+                // Using a transparent mix blend mode or removing background if images were PNGs. 
+                // Since these are JPGs, we just display them neatly.
+                el.innerHTML = `<img src="${product.img}" alt="${product.name}">`;
+                track.appendChild(el);
+            });
+            updateCarousel();
+        }
+
+        // 3. The Core Animation Logic
+        function updateCarousel() {
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach((card, index) => {
+                // Calculate distance from current index
+                // We use modular arithmetic to create a "virtual" infinite feel if we wanted,
+                // but for this specific "bounded" list from the video, we just use relative calculation.
+                
+                const distance = index - currentIndex;
+
+                // Base Styles
+                let transform = '';
+                let opacity = 1;
+                let zIndex = 0;
+                let filter = 'none';
+
+                if (distance === 0) {
+                    // CENTER ITEM
+                    transform = `translateX(0) scale(1.4)`;
+                    zIndex = 10;
+                    opacity = 1;
+                } else if (distance === -1) {
+                    // LEFT IMMEDIATE
+                    transform = `translateX(-280px) scale(0.9)`;
+                    zIndex = 5;
+                    opacity = 0.7;
+                } else if (distance === 1) {
+                    // RIGHT IMMEDIATE
+                    transform = `translateX(280px) scale(0.9)`;
+                    zIndex = 5;
+                    opacity = 0.7;
+                } else if (distance < -1) {
+                    // FAR LEFT
+                    transform = `translateX(-500px) scale(0.6)`;
+                    zIndex = 1;
+                    opacity = 0; // Hide them
+                } else if (distance > 1) {
+                    // FAR RIGHT
+                    transform = `translateX(500px) scale(0.6)`;
+                    zIndex = 1;
+                    opacity = 0; // Hide them
+                }
+
+                card.style.transform = transform;
+                card.style.zIndex = zIndex;
+                card.style.opacity = opacity;
+            });
+
+            updateInfo();
+        }
+
+        function updateInfo() {
+            // Add animation class to trigger fade
+            infoContent.classList.remove('fade-in');
+            void infoContent.offsetWidth; // trigger reflow
+            infoContent.classList.add('fade-in');
+
+            const currentProduct = products[currentIndex];
+            pName.textContent = currentProduct.name;
+            pPrice.textContent = currentProduct.price;
+        }
+
+        // 4. Event Listeners
+        document.getElementById('next').addEventListener('click', () => {
+            if (currentIndex < products.length - 1) {
+                currentIndex++;
+                updateCarousel();
+            }
+        });
+
+        document.getElementById('prev').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCarousel();
+            }
+        });
+
+        // Initialize
+        init();
+
+    </script>
+</body>
+</html>

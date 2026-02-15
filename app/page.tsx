@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { HeroCarousel } from "@/components/home/hero-carousel";
+import { DropsSection } from "@/components/home/drops-section";
 import { HowItWorks } from "@/components/home/how-it-works";
 import { Testimonials } from "@/components/home/testimonials";
 import { FeaturedBrands } from "@/components/home/featured-brands";
@@ -86,6 +87,9 @@ export default function HomePage() {
 
       {/* Hero Section with Carousel */}
       <HeroCarousel />
+
+      {/* Drops Section  */}
+      <DropsSection />
 
       {/* Featured Brands */}
       <FeaturedBrands />
