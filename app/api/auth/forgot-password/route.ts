@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
     const { error } = await resend.emails.send({
-      from: "RentSquare <noreply@tryholo.studio>",
+      from: "RentSquare <nishant-sharma@tryholo.studio>",
       to: email,
       subject: "Reset Your Password - RentSquare",
       html: `
@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   <div style="max-width: 500px; margin: 0 auto; background-color: white; border-radius: 12px; padding: 40px 32px;">
     <!-- Logo -->
     <div style="text-align: center; margin-bottom: 24px;">
-      <h1 style="color: #135bec; margin: 0; font-size: 28px; font-weight: 700;">RentSquare</h1>
+      <h1 style="color: #15803d; margin: 0; font-size: 28px; font-weight: 700;">RentSquare</h1>
     </div>
     
     <!-- Content -->
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     
     <!-- Button -->
     <div style="text-align: center; margin-bottom: 24px;">
-      <a href="${resetUrl}" style="display: inline-block; background-color: #135bec; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+      <a href="${resetUrl}" style="display: inline-block; background-color: #15803d; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
         Reset Password
       </a>
     </div>
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 20px;">
       <p style="color: #94a3b8; font-size: 12px; margin: 0; text-align: center;">
         If the button doesn't work, copy and paste this link into your browser:<br>
-        <a href="${resetUrl}" style="color: #135bec; word-break: break-all;">${resetUrl}</a>
+        <a href="${resetUrl}" style="color: #15803d; word-break: break-all;">${resetUrl}</a>
       </p>
     </div>
     
