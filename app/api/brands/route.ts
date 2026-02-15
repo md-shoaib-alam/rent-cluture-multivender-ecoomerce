@@ -1,0 +1,85 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const featured = searchParams.get("featured") === "true";
+    const active = searchParams.get("active") !== "false";
+
+    const where: Prisma.BrandWhereInput = {};
+
+    if (featured) {
+      where.isFeatured = true;
+    }
+
+    if (active) {
+      where.isActive = true;
+    }
+
+    const brands = await prisma.brand.findMany({
+      where,
+      orderBy: [
+        { isFeatured: "desc" },
+        { sortOrder: "asc" },
+      ],
+    });
+
+    // Transform brands to match frontend interface
+    const transformedBrands = brands.map((brand) => ({
+      id: brand.id,
+      name: brand.name,
+      logo: brand.logo || "",
+    }));
+
+    return NextResponse.json({
+      brands: transformedBrands,
+    });
+  } catch (error) {
+    console.error("Error fetching brands:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch brands" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { name, logo, description, website, isActive, isFeatured, sortOrder } = body;
+
+    // Create slug from name
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+    const brand = await prisma.brand.create({
+      data: {
+        name,
+        slug,
+        logo,
+        description,
+        website,
+        isActive: isActive ?? true,
+        isFeatured: isFeatured ?? false,
+        sortOrder: sortOrder || 0,
+      },
+    });
+
+    return NextResponse.json({ brand });
+  } catch (error) {
+    console.error("Error creating brand:", error);
+    return NextResponse.json(
+      { error: "Failed to create brand" },
+      { status: 500 }
+    );
+  }
+}

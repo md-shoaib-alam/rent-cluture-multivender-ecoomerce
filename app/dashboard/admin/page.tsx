@@ -174,6 +174,14 @@ export default function AdminDashboard() {
             <span className="material-symbols-outlined">analytics</span>
             <span className="text-sm font-medium">Revenue Analytics</span>
           </Link>
+          <Link 
+            href="/dashboard/admin/brands" 
+            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <span className="material-symbols-outlined">workspace_premium</span>
+            <span className="text-sm font-medium">Brands</span>
+          </Link>
         </nav>
 
         <div className="p-4 border-t border-slate-200 space-y-1">

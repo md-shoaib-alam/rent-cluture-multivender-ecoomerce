@@ -243,7 +243,7 @@ model Vendor {
   businessName    String
   businessSlug    String        @unique
   description     String?       @db.Text
-  logo            String?
+  logo            String?       @db.Text
   banner          String?
   phone           String?
   status          VendorStatus @default(PENDING)
@@ -294,7 +294,7 @@ model Category {
   name        String
   slug        String    @unique
   description String?
-  image       String?
+  image       String?   @db.Text
   parentId    String?
   isActive    Boolean   @default(true)
   sortOrder   Int       @default(0)
@@ -340,7 +340,7 @@ model Product {
   weeklyPrice     Decimal?      @db.Decimal(10, 2)
   depositAmount   Decimal       @default(50) @db.Decimal(10, 2)
   
-  brand           String?
+  brandId        String?
   condition       String       @default("new")
   careInstructions String?    @db.Text
   
@@ -354,6 +354,7 @@ model Product {
 
   vendor          Vendor       @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   category        Category     @relation(fields: [categoryId], references: [id])
+  brand           Brand?       @relation(fields: [brandId], references: [id])
   variants        ProductVariant[]
   reviews         Review[]
   rentals         RentalItem[]
@@ -704,7 +705,7 @@ model Banner {
   id        String   @id @default(cuid())
   title     String
   subtitle  String?
-  image     String
+  image     String   @db.Text
   link      String?
   position  String   @default("home")
   isActive  Boolean  @default(true)
@@ -715,6 +716,29 @@ model Banner {
   updatedAt DateTime @updatedAt
 
   @@index([isActive])
+}
+
+// ============================================
+// BRANDS
+// ============================================
+
+model Brand {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logo        String?   @db.Text
+  description String?  @db.Text
+  website     String?
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    Product[]
+
+  @@index([slug])
+  @@index([isFeatured])
 }
 
 model Page {

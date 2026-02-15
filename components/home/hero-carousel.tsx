@@ -4,40 +4,45 @@ import React, { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
-const slides = [
-    {
-        id: 1,
-        // Using a placeholder image that mimics the "Culture Cupid" red theme
-        image: "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=2670&auto=format&fit=crop",
-        title: "CULTURE CUPID SALE IS BACK",
-        subtitle: "Get Upto 75% Off On Your Favourite Sneakers",
-        theme: "red" // Custom theme property for specific styling
-    },
-    {
-        id: 2,
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAECJGPLNxbR5hpiPk6g0d6230rHZfKK9Tqz9cj2bBJ9ZlNu860Ax9TL7RCL1A67ARiTN3jfF8xcXC9HByblSdtFD99noy-RAZC33mn1b7vZtAkonJ-BX2JcP3npfq5jAMSOTFtwfA9sxkfxNTacmuLN7P29HPup50GRSYZAT54cHDaZc5M18A4ZT12mezn6iPUbOQxjIqr4OjVa8T83AAIiig4pOewCl6Y0Nxu6IYlcAwdqwMIIMeGW2b_4eklQZlfES3Pm-2c8ViC",
-        title: "Eco-Friendly Fashion",
-        subtitle: "Rent, Wear, Return"
-    },
-    {
-        id: 3,
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB2d1pBBTI5Ca4FrpOQ4FVuJvYXerTVWroRubJ6Bocm66QtVD3IrS1VMglKiJHnZUHbfL2vR7RTQxYi_Mdt6okIDc4Dq4KHiR7qeLWNV-ctXeNSAe2vwDsf6MxiMUhuuXqKHcaU2rAD5xhTlp_KGL5dCBT3ASbyBU2Gh2xQXVhu6XpYj5mlrxoJc-nzLs9oWXClELvb6yR_ZDzqv7zSyjNPeCGaIGKPtg5NLVxDd5bxkN_KvLgSiBjavrPFhKXgR13SLBWLrZDRAp0x",
-        title: "Premium Ethnic Wear",
-        subtitle: "For Every Occasion"
-    },
-    {
-        id: 4,
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMQ8f7buYJb5bLWAcq7YlgGPECBACSssw-_Hcosf8fA_rOPSs27XhRJE9Ub4XUDQrvx7KyndlG2pJC_Cb0aXrlQKYQf1unFMrE7CFg9cnoX9Ej9BtCQwQJ7t3JUUb61xMcjVVSfvEcQmidDQS0ThLGGtmbSC8L3ANcSiJMhJqeZKF2Hb4CUpvmHXGR3rXcZfWGDIZzpjjrnuyHvhcrFFFLHSVEb1OmlLjPd0MAxWCBf8DWsQGmhB9VghnDqs0o75_H0PyC-RxxjRW",
-        title: "Designer Lehengas",
-        subtitle: "Starting at ₹2,999"
-    }
-];
+interface Banner {
+    id: string;
+    title: string;
+    subtitle: string;
+    image: string;
+    link?: string;
+    theme?: string;
+}
 
 export function HeroCarousel() {
-    // Standard autoplay configuration
+    const [banners, setBanners] = useState<Banner[]>([]);
     const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [Autoplay({ delay: 5000, stopOnInteraction: false })]);
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    useEffect(() => {
+        let isMounted = true;
+        
+        const fetchBanners = async () => {
+            try {
+                const res = await fetch('/api/banners?position=home&active=true');
+                if (res.ok && isMounted) {
+                    const data = await res.json();
+                    if (data.banners && data.banners.length > 0) {
+                        setBanners(data.banners);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching banners:', error);
+            }
+        };
+        
+        fetchBanners();
+        
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -67,7 +72,7 @@ export function HeroCarousel() {
         <div className="relative w-full overflow-hidden bg-gray-900 group">
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex">
-                    {slides.map((slide) => (
+                    {banners.map((slide) => (
                         <div key={slide.id} className="relative flex-[0_0_100%] min-w-0 h-[60vh] md:h-[calc(100vh-80px)]">
                             <img
                                 src={slide.image}
@@ -88,9 +93,15 @@ export function HeroCarousel() {
                                 <h2 className="text-white text-3xl md:text-6xl lg:text-8xl font-black max-w-5xl leading-tight mb-4 md:mb-8 animate-fade-in-up delay-100 drop-shadow-lg uppercase px-2">
                                     {slide.title}
                                 </h2>
-                                <button className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-6 py-3 md:px-8 md:py-4 rounded-full text-sm md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
-                                    Shop Collection
-                                </button>
+                                {slide.link ? (
+                                    <Link href={slide.link} className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-6 py-3 md:px-8 md:py-4 rounded-full text-sm md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
+                                        Shop Collection
+                                    </Link>
+                                ) : (
+                                    <button className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-6 py-3 md:px-8 md:py-4 rounded-full text-sm md:text-lg transition-transform hover:scale-105 shadow-xl animate-fade-in-up delay-200">
+                                        Shop Collection
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -115,7 +126,7 @@ export function HeroCarousel() {
 
             {/* Dots */}
             <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-3 z-20">
-                {slides.map((_, index) => (
+                {banners.map((_, index) => (
                     <button
                         key={index}
                         className={`transition-all duration-300 rounded-full ${index === selectedIndex
@@ -130,4 +141,3 @@ export function HeroCarousel() {
         </div>
     );
 }
-

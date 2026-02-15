@@ -11,97 +11,20 @@ interface DropProduct {
     image: string;
     price: number;
     brand?: string;
+    slug?: string;
 }
 
-const DEMO_DROPS: DropProduct[] = [
-    {
-        id: "d1",
-        name: "Swatch X Omega Bioceramic Moonswatch Mission To Venus",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC1_Y8D5w7q0J8b5xM9Xj7ZlG3p2Fk1H4n8o7W9R8t0v0c4s5j6y7u8i9o0p1q2r3s4t5u6v7w8x9y0z1a2b3c4d5e",
-        price: 26998,
-        brand: "Omega"
-    },
-    {
-        id: "d2",
-        name: "Air Jordan 1 Retro High OG 'Chicago'",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB2d1pBBTI5Ca4FrpOQ4FVuJvYXerTVWroRubJ6Bocm66QtVD3IrS1VMglKiJHnZUHbfL2vR7RTQxYi_Mdt6okIDc4Dq4KHiR7qeLWNV-ctXeNSAe2vwDsf6MxiMUhuuXqKHcaU2rAD5xhTlp_KGL5dCBT3ASbyBU2Gh2xQXVhu6XpYj5mlrxoJc-nzLs9oWXClELvb6yR_ZDzqv7zSyjNPeCGaIGKPtg5NLVxDd5bxkN_KvLgSiBjavrPFhKXgR13SLBWLrZDRAp0x",
-        price: 45000,
-        brand: "Nike"
-    },
-    {
-        id: "d3",
-        name: "Rolex GMT-Master II",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCSEzZ9rHpzU8ngSriArgwqy4ClXoKkIU4x6zeUw5xdzTzxBa-bGMle4av0EKPsUUZv8Wb4hb8W_NMYFLu8A7Z3Ajq-CDcsJlMNB7beZecy1M0gDP7xrzF1DlE56hMxlJ8GiQ7sXdDzdLFJMnGI4iCH2Sxp0Mub6veGJXTEZtaCQhZbjw4mFTgecY3jNAtKEw8VN-SO3E53CeP5VaUgspv6R-OLnjZZbonWj2uHg22dM157YuWkjt9pBSR05Xo74gx-7En8-xRT1951",
-        price: 1250000,
-        brand: "Rolex"
-    },
-    {
-        id: "d4",
-        name: "Adidas Samba OG White",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuACLA4f7buYJb5bLWAcq7YlgGPECBACSssw-_Hcosf8fA_rOPSs27XhRJE9Ub4XUDQrvx7KyndlG2pJC_Cb0aXrlQKYQf1unFMrE7CFg9cnoX9Ej9BtCQwQJ7t3JUUb61xMcjVVSfvEcQmidDQS0ThLGGtmbSC8L3ANcSiJMhJqeZKF2Hb4CUpvmHXGR3rXcZfWGDIZzpjjrnuyHvhcrFFFLHSVEb1OmlLjPd0MAxWCBf8DWsQGmhB9VghnDqs0o75_H0PyC-RxxjRW",
-        price: 12999,
-        brand: "Adidas"
-    },
-    {
-        id: "d5",
-        name: "Yeezy Boost 350 V2 'Zebra'",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMQ8f7buYJb5bLWAcq7YlgGPECBACSssw-_Hcosf8fA_rOPSs27XhRJE9Ub4XUDQrvx7KyndlG2pJC_Cb0aXrlQKYQf1unFMrE7CFg9cnoX9Ej9BtCQwQJ7t3JUUb61xMcjVVSfvEcQmidDQS0ThLGGtmbSC8L3ANcSiJMhJqeZKF2Hb4CUpvmHXGR3rXcZfWGDIZzpjjrnuyHvhcrFFFLHSVEb1OmlLjPd0MAxWCBf8DWsQGmhB9VghnDqs0o75_H0PyC-RxxjRW",
-        price: 28000,
-        brand: "Yeezy"
-    },
-    {
-        id: "d6",
-        name: "Louis Vuitton Trainer",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD8DdxsG1ihKYMvMNAds0_JQuQxs3bM1T2YS7kQ9c77JIlkHpuqT7raP19bQD3lrE5wHqtAX345X_WA9xnoeza9ODcAUhC_ijGDjOCOyNLrW6bu7w7M0lzdlYFZwQ2pctTBF0UzFgFGzMght3fvCCOqozcrMXrJUQv5h6G9dUIZ_4nXbuMR31hz4jWI3sR_hJqIjndd_rnSVe2TvP1HeyutRRkjwtOvP_-eKofY53QACBe0AE3ORkOgp_A1eiRFqJI3zJ0WZCSkLHr",
-        price: 98000,
-        brand: "Louis Vuitton"
-    },
-    // Duplicated items for smoother infinite loop
-    {
-        id: "d7",
-        name: "Swatch X Omega Bioceramic Moonswatch Mission To Venus",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuC1_Y8D5w7q0J8b5xM9Xj7ZlG3p2Fk1H4n8o7W9R8t0v0c4s5j6y7u8i9o0p1q2r3s4t5u6v7w8x9y0z1a2b3c4d5e",
-        price: 26998,
-        brand: "Omega"
-    },
-    {
-        id: "d8",
-        name: "Air Jordan 1 Retro High OG 'Chicago'",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB2d1pBBTI5Ca4FrpOQ4FVuJvYXerTVWroRubJ6Bocm66QtVD3IrS1VMglKiJHnZUHbfL2vR7RTQxYi_Mdt6okIDc4Dq4KHiR7qeLWNV-ctXeNSAe2vwDsf6MxiMUhuuXqKHcaU2rAD5xhTlp_KGL5dCBT3ASbyBU2Gh2xQXVhu6XpYj5mlrxoJc-nzLs9oWXClELvb6yR_ZDzqv7zSyjNPeCGaIGKPtg5NLVxDd5bxkN_KvLgSiBjavrPFhKXgR13SLBWLrZDRAp0x",
-        price: 45000,
-        brand: "Nike"
-    },
-    {
-        id: "d9",
-        name: "Rolex GMT-Master II",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuCSEzZ9rHpzU8ngSriArgwqy4ClXoKkIU4x6zeUw5xdzTzxBa-bGMle4av0EKPsUUZv8Wb4hb8W_NMYFLu8A7Z3Ajq-CDcsJlMNB7beZecy1M0gDP7xrzF1DlE56hMxlJ8GiQ7sXdDzdLFJMnGI4iCH2Sxp0Mub6veGJXTEZtaCQhZbjw4mFTgecY3jNAtKEw8VN-SO3E53CeP5VaUgspv6R-OLnjZZbonWj2uHg22dM157YuWkjt9pBSR05Xo74gx-7En8-xRT1951",
-        price: 1250000,
-        brand: "Rolex"
-    },
-    {
-        id: "d10",
-        name: "Adidas Samba OG White",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuACLA4f7buYJb5bLWAcq7YlgGPECBACSssw-_Hcosf8fA_rOPSs27XhRJE9Ub4XUDQrvx7KyndlG2pJC_Cb0aXrlQKYQf1unFMrE7CFg9cnoX9Ej9BtCQwQJ7t3JUUb61xMcjVVSfvEcQmidDQS0ThLGGtmbSC8L3ANcSiJMhJqeZKF2Hb4CUpvmHXGR3rXcZfWGDIZzpjjrnuyHvhcrFFFLHSVEb1OmlLjPd0MAxWCBf8DWsQGmhB9VghnDqs0o75_H0PyC-RxxjRW",
-        price: 12999,
-        brand: "Adidas"
-    },
-    {
-        id: "d11",
-        name: "Yeezy Boost 350 V2 'Zebra'",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAMQ8f7buYJb5bLWAcq7YlgGPECBACSssw-_Hcosf8fA_rOPSs27XhRJE9Ub4XUDQrvx7KyndlG2pJC_Cb0aXrlQKYQf1unFMrE7CFg9cnoX9Ej9BtCQwQJ7t3JUUb61xMcjVVSfvEcQmidDQS0ThLGGtmbSC8L3ANcSiJMhJqeZKF2Hb4CUpvmHXGR3rXcZfWGDIZzpjjrnuyHvhcrFFFLHSVEb1OmlLjPd0MAxWCBf8DWsQGmhB9VghnDqs0o75_H0PyC-RxxjRW",
-        price: 28000,
-        brand: "Yeezy"
-    },
-    {
-        id: "d12",
-        name: "Louis Vuitton Trainer",
-        image: "https://lh3.googleusercontent.com/aida-public/AB6AXuD8DdxsG1ihKYMvMNAds0_JQuQxs3bM1T2YS7kQ9c77JIlkHpuqT7raP19bQD3lrE5wHqtAX345X_WA9xnoeza9ODcAUhC_ijGDjOCOyNLrW6bu7w7M0lzdlYFZwQ2pctTBF0UzFgFGzMght3fvCCOqozcrMXrJUQv5h6G9dUIZ_4nXbuMR31hz4jWI3sR_hJqIjndd_rnSVe2TvP1HeyutRRkjwtOvP_-eKofY53QACBe0AE3ORkOgp_A1eiRFqJI3zJ0WZCSkLHr",
-        price: 98000,
-        brand: "Louis Vuitton"
-    }
-];
+interface APIProduct {
+    id: string;
+    name: string;
+    images: string[];
+    dailyPrice: number;
+    brand?: { name: string } | null;
+    slug: string;
+}
 
 export function DropsSection() {
+    const [products, setProducts] = useState<DropProduct[]>([]);
     const [emblaRef, emblaApi] = useEmblaCarousel({
         loop: true,
         align: 'center',
@@ -109,6 +32,33 @@ export function DropsSection() {
     }, [Autoplay({ delay: 3000, stopOnInteraction: false })]);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const fetchProducts = async () => {
+        try {
+            const res = await fetch('/api/products?limit=12');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.products && data.products.length > 0) {
+                    const transformedProducts: DropProduct[] = data.products.map((p: APIProduct) => ({
+                        id: p.id,
+                        name: p.name,
+                        image: p.images && p.images[0] ? p.images[0] : '',
+                        price: p.dailyPrice,
+                        brand: p.brand?.name || '',
+                        slug: p.slug
+                    }));
+                    // Duplicate for smoother infinite loop
+                    setProducts([...transformedProducts, ...transformedProducts]);
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        }
+    };
 
     const onSelect = useCallback(() => {
         if (!emblaApi) return;
@@ -125,11 +75,40 @@ export function DropsSection() {
     const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
     const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
 
-    const activeProduct = DEMO_DROPS[selectedIndex];
+    // Use database products only
+    const activeProduct = products.length > 0 ? products[selectedIndex] || products[0] : null;
+
+    // Show loading or placeholder when no products
+    if (!activeProduct) {
+        return (
+            <section className="py-20 relative overflow-hidden bg-white">
+                <div className="container mx-auto px-4">
+                    <div className="text-center mb-16">
+                        <div className="relative inline-block">
+                            <h2 className="text-6xl md:text-8xl font-black text-white tracking-tighter"
+                                style={{
+                                    WebkitTextStroke: '2px #000',
+                                    textShadow: '4px 4px 0px rgba(0,0,0,0.1)'
+                                }}>
+                                DROPS
+                            </h2>
+                            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl md:text-6xl font-script text-black rotate-[-10deg]"
+                                style={{ fontFamily: 'cursive' }}>
+                                culture
+                            </span>
+                        </div>
+                        <p className="text-gray-600 font-medium mt-4 tracking-wide text-sm md:text-base">
+                            Loading products...
+                        </p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     // Helper to calculate distance from active slide handling loop
     const getSlideStyle = (index: number) => {
-        const total = DEMO_DROPS.length;
+        const total = products.length;
         let diff = Math.abs(index - selectedIndex);
         if (diff > total / 2) {
             diff = total - diff;
@@ -200,17 +179,22 @@ export function DropsSection() {
                 <div className="relative max-w-[1400px] mx-auto mb-12">
                     <div className="overflow-hidden py-16" ref={emblaRef} style={{ perspective: '1000px' }}>
                         <div className="flex -ml-4 touch-pan-y items-center" style={{ transformStyle: 'preserve-3d' }}>
-                            {DEMO_DROPS.map((product, index) => {
+                            {products.map((product, index) => {
                                 const slideStyle = getSlideStyle(index);
                                 const isActive = index === selectedIndex;
 
                                 return (
-                                    <div key={product.id} className="flex-[0_0_50%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
-                                        style={{ perspective: '1000px' }} // Local perspective for item if needed, but mainly container
+                                    <div 
+                                        key={`${product.id}-${index}`} 
+                                        className="flex-[0_0_50%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
+                                        style={{ 
+                                            perspective: '1000px',
+                                            zIndex: slideStyle.zIndex 
+                                        }}
                                         onClick={() => emblaApi?.scrollTo(index)}>
                                         <div
                                             className="transition-all duration-500 ease-out transform-gpu origin-bottom"
-                                            style={slideStyle}
+                                            style={{...slideStyle, zIndex: 'auto'}}
                                         >
                                             <div className="relative aspect-square">
                                                 {/* Image Container - removed animate-float */}
@@ -249,6 +233,7 @@ export function DropsSection() {
                 </div>
 
                 {/* Product Details Card */}
+                {activeProduct && (
                 <div className="max-w-sm mx-auto">
                     <div className="bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-5 text-center relative overflow-hidden">
                         <div className="relative z-10 transition-all duration-300">
@@ -266,7 +251,7 @@ export function DropsSection() {
 
                     {/* Pagination Dots */}
                     <div className="flex justify-center gap-2 mt-6">
-                        {DEMO_DROPS.map((_, idx) => (
+                        {products.map((_, idx) => (
                             <div key={idx}
                                 onClick={() => emblaApi?.scrollTo(idx)}
                                 className={`rounded-full transition-all duration-300 cursor-pointer ${idx === selectedIndex ? 'w-6 bg-black h-1' : 'w-1.5 h-1.5 bg-gray-300'}`}>
@@ -274,6 +259,7 @@ export function DropsSection() {
                         ))}
                     </div>
                 </div>
+                )}
             </div>
         </section>
     );

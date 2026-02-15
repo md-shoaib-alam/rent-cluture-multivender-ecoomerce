@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
@@ -11,28 +11,37 @@ interface Brand {
     logo: string;
 }
 
-// Mock data - this would come from your database/admin dashboard
-const BRANDS: Brand[] = [
-    { id: '1', name: 'New Balance', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/ea/New_Balance_logo.svg' },
-    { id: '2', name: 'Nike', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg' },
-    { id: '3', name: 'Adidas', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg' },
-    { id: '4', name: 'Drew House', logo: 'https://upload.wikimedia.org/wikipedia/commons/d/d0/Drew_House_logo.png' }, // Placeholder or similar
-    { id: '5', name: 'Jordan', logo: 'https://upload.wikimedia.org/wikipedia/en/3/37/Jumpman_logo.svg' },
-    { id: '6', name: 'OVO', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9b/October%27s_Very_Own_Logo.png/220px-October%27s_Very_Own_Logo.png' }, // Placeholder
-    { id: '7', name: 'Supreme', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Supreme_Logo.svg' },
-    { id: '8', name: 'Anti Social Social Club', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Anti_Social_Social_Club_logo.svg/1200px-Anti_Social_Social_Club_logo.svg.png' },
-    { id: '9', name: 'Vans', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Vans-logo.svg' },
-    { id: '10', name: 'Louis Vuitton', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/52/Louis_Vuitton_poster.svg' },
-    { id: '11', name: 'Off-White', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Off-White_Logo.svg' },
-    { id: '12', name: 'Gucci', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/79/1960s_Gucci_Logo.svg' },
-];
-
 export function FeaturedBrands() {
+    const [brands, setBrands] = useState<Brand[]>([]);
     const [emblaRef] = useEmblaCarousel({
         align: 'start',
         containScroll: 'trimSnaps',
         dragFree: true
     });
+
+    useEffect(() => {
+        let isMounted = true;
+        
+        const fetchBrands = async () => {
+            try {
+                const res = await fetch('/api/brands?featured=true&active=true');
+                if (res.ok && isMounted) {
+                    const data = await res.json();
+                    if (data.brands && data.brands.length > 0) {
+                        setBrands(data.brands);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching brands:', error);
+            }
+        };
+        
+        fetchBrands();
+        
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     return (
         <section className="py-12 bg-white">
@@ -48,7 +57,7 @@ export function FeaturedBrands() {
 
                 <div className="overflow-hidden" ref={emblaRef}>
                     <div className="flex -ml-4 md:-ml-8">
-                        {BRANDS.map((brand) => (
+                        {brands.map((brand) => (
                             <div key={brand.id} className="flex-[0_0_auto] pl-4 md:pl-8">
                                 <Link href={`/brand/${brand.name.toLowerCase()}`} className="group flex flex-col items-center gap-3">
                                     <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border border-gray-100 bg-white flex items-center justify-center p-6 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300">

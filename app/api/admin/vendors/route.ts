@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { VendorStatus } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
     const status = searchParams.get("status");
 
     const vendors = await prisma.vendor.findMany({
-      where: status ? { status: status as any } : undefined,
+      where: status ? { status: status as VendorStatus } : undefined,
       include: {
         user: {
           select: {
