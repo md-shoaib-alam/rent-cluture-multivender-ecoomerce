@@ -249,27 +249,27 @@ export function DropsSection() {
                 </div>
 
                 {/* Product Details Card */}
-                <div className="max-w-xl mx-auto">
-                    <div className="bg-white border border-gray-100 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] rounded-xl p-6 md:p-8 text-center relative overflow-hidden">
+                <div className="max-w-sm mx-auto">
+                    <div className="bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-5 text-center relative overflow-hidden">
                         <div className="relative z-10 transition-all duration-300">
-                            <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 truncate">
+                            <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
                                 {activeProduct.name}
                             </h3>
-                            <p className="text-3xl font-black text-gray-900 mb-6">
+                            <p className="text-2xl font-black text-gray-900 mb-4">
                                 ₹{activeProduct.price.toLocaleString('en-IN')}
                             </p>
-                            <button className="w-full bg-black text-white font-bold py-4 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-sm">
+                            <button className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-xs">
                                 Explore
                             </button>
                         </div>
                     </div>
 
                     {/* Pagination Dots */}
-                    <div className="flex justify-center gap-2 mt-8">
+                    <div className="flex justify-center gap-2 mt-6">
                         {DEMO_DROPS.map((_, idx) => (
                             <div key={idx}
                                 onClick={() => emblaApi?.scrollTo(idx)}
-                                className={`rounded-full transition-all duration-300 cursor-pointer ${idx === selectedIndex ? 'w-8 bg-black h-1' : 'w-2 h-2 bg-gray-300'}`}>
+                                className={`rounded-full transition-all duration-300 cursor-pointer ${idx === selectedIndex ? 'w-6 bg-black h-1' : 'w-1.5 h-1.5 bg-gray-300'}`}>
                             </div>
                         ))}
                     </div>
