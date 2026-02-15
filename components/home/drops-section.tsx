@@ -177,8 +177,8 @@ export function DropsSection() {
                 </div>
 
                 {/* 3D Carousel */}
-                <div className="relative max-w-[1400px] mx-auto mb-12">
-                    <div className="overflow-hidden py-32" ref={emblaRef} style={{ perspective: '1000px' }}>
+                <div className="relative max-w-[1400px] mx-auto mb-2">
+                    <div className="overflow-hidden pt-32 pb-20" ref={emblaRef} style={{ perspective: '1000px' }}>
                         <div className="flex -ml-4 touch-pan-y items-center" style={{ transformStyle: 'preserve-3d' }}>
                             {products.map((product, index) => {
                                 const slideStyle = getSlideStyle(index);

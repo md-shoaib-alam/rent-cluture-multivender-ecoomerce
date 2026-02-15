@@ -178,11 +178,10 @@ export default function HomePage() {
           <div className="flex flex-wrap gap-3 justify-center mb-12">
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`font-semibold px-6 py-2 rounded-full shadow-md transition-colors ${
-                selectedCategory === null
+              className={`font-semibold px-6 py-2 rounded-full shadow-md transition-colors ${selectedCategory === null
                   ? "bg-primary text-white"
                   : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
-              }`}
+                }`}
             >
               All
             </button>
@@ -190,11 +189,10 @@ export default function HomePage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.name)}
-                className={`font-semibold px-6 py-2 rounded-full transition-colors ${
-                  selectedCategory === cat.name
+                className={`font-semibold px-6 py-2 rounded-full transition-colors ${selectedCategory === cat.name
                     ? "bg-primary text-white"
                     : "bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary"
-                }`}
+                  }`}
               >
                 {cat.name}
               </button>
@@ -297,60 +295,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-50 pt-16 pb-8 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1 md:col-span-1">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
-                  <span className="material-symbols-outlined text-lg">diamond</span>
-                </div>
-                <h2 className="text-xl font-bold text-gray-900">RentSquare</h2>
-              </div>
-              <p className="text-black text-sm leading-relaxed">
-                India&apos;s premium fashion rental marketplace. Authentic designer wear, verified quality, and secure transactions.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold text-gray-900 mb-6">Categories</h4>
-              <ul className="space-y-4 text-black text-sm">
-                <li><Link href="#" className="hover:text-primary">Wedding Collection</Link></li>
-                <li><Link href="#" className="hover:text-primary">Party Wear</Link></li>
-                <li><Link href="#" className="hover:text-primary">Jewellery</Link></li>
-                <li><Link href="#" className="hover:text-primary">Accessories</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-gray-900 mb-6">Support</h4>
-              <ul className="space-y-4 text-black text-sm">
-                <li><Link href="#" className="hover:text-primary">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-primary">Terms & Conditions</Link></li>
-                <li><Link href="#" className="hover:text-primary">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-primary">Returns</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-gray-900 mb-6">Subscribe</h4>
-              <p className="text-black text-sm mb-4">Get the latest trends and updates.</p>
-              <div className="flex gap-2">
-                <input className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Email address" />
-                <button className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90">
-                  <span className="material-symbols-outlined">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-black font-medium uppercase tracking-wider">
-            <p>© 2024 RentSquare. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="#" className="hover:text-primary">Instagram</a>
-              <a href="#" className="hover:text-primary">Twitter</a>
-              <a href="#" className="hover:text-primary">LinkedIn</a>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

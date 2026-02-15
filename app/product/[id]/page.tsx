@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Star, Truck, Shield, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -39,7 +40,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Please select a size");
+      toast.error("Please select a size");
       return;
     }
 
@@ -60,8 +61,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       rentalStart: startDate,
       rentalEnd: endDate,
     });
-    
-    alert("Added to cart!");
+
+    toast.success("Added to cart!");
   };
 
   return (
@@ -94,7 +95,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
               </Link>
             </div>
             <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-            
+
             <div className="flex items-center mt-2">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (

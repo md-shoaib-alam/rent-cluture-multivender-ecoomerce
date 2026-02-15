@@ -6,6 +6,7 @@ import { Footer } from "@/components/shared/footer";
 import { Providers } from "@/components/providers";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { CookieConsent } from "@/components/shared/cookie-consent";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
           </div>
           <CartDrawer />
           <CookieConsent />
+          <Toaster />
         </Providers>
       </body>
     </html>
