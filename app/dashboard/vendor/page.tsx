@@ -39,14 +39,14 @@ export default function VendorDashboardPage() {
   const stats = [
     { name: "Total Products", value: "24", icon: Package, change: "+3 this month" },
     { name: "Active Rentals", value: "12", icon: ShoppingBag, change: "5 ending soon" },
-    { name: "Total Earnings", value: "$4,250", icon: DollarSign, change: "+$350 this week" },
+    { name: "Total Earnings", value: "₹4,250", icon: DollarSign, change: "+₹350 this week" },
     { name: "Average Rating", value: "4.8", icon: Star, change: "From 48 reviews" },
   ];
 
   const recentRentals = [
-    { id: 1, product: "Elegant Evening Gown", customer: "Sarah Johnson", dates: "Feb 15-18", status: "Active", amount: "$267" },
-    { id: 2, product: "Designer Handbag", customer: "Emily Davis", dates: "Feb 16-20", status: "Pending", amount: "$180" },
-    { id: 3, product: "Wedding Dress", customer: "Michael Brown", dates: "Feb 18-22", status: "Upcoming", amount: "$450" },
+    { id: 1, product: "Elegant Evening Gown", customer: "Sarah Johnson", dates: "Feb 15-18", status: "Active", amount: "₹267" },
+    { id: 2, product: "Designer Handbag", customer: "Emily Davis", dates: "Feb 16-20", status: "Pending", amount: "₹180" },
+    { id: 3, product: "Wedding Dress", customer: "Michael Brown", dates: "Feb 18-22", status: "Upcoming", amount: "₹450" },
   ];
 
   return (

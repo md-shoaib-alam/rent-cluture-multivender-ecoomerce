@@ -36,7 +36,7 @@ export function HowItWorks() {
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <span className="text-secondary font-bold tracking-widest uppercase text-sm mb-2 block">Simple Process</span>
                     <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">How RentSquare Works</h2>
-                    <p className="text-gray-500 text-lg">Rent your dream outfit in 4 simple steps and save up to 90% on retail prices.</p>
+                    <p className="text-black text-lg">Rent your dream outfit in 4 simple steps and save up to 90% on retail prices.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -52,7 +52,7 @@ export function HowItWorks() {
                                     <span className="material-symbols-outlined">{step.icon}</span>
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
-                                <p className="text-gray-500 leading-relaxed">{step.description}</p>
+                                <p className="text-black leading-relaxed">{step.description}</p>
                             </div>
                         </div>
                     ))}

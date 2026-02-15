@@ -58,7 +58,7 @@ export function Navbar() {
           <div className="hidden md:flex md:items-center md:space-x-8">
             {/* Categories Dropdown */}
             <div className="relative group">
-              <button className="text-sm font-medium text-gray-700 hover:text-gray-900">
+              <button className="text-sm font-medium text-black hover:text-gray-900">
                 Categories
               </button>
               <div className="absolute left-0 top-full mt-1 w-48 rounded-md bg-white shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -67,7 +67,7 @@ export function Navbar() {
                     <Link
                       key={category.name}
                       href={category.href}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
                     >
                       {category.name}
                     </Link>
@@ -85,7 +85,7 @@ export function Navbar() {
                   "text-sm font-medium transition-colors hover:text-gray-900",
                   pathname === page.href
                     ? "text-gray-900"
-                    : "text-gray-600"
+                    : "text-black"
                 )}
               >
                 {page.name}
@@ -96,7 +96,7 @@ export function Navbar() {
           {/* Right Side */}
           <div className="flex items-center space-x-4">
             {/* Search (placeholder) */}
-            <button className="hidden md:flex p-2 text-gray-600 hover:text-gray-900 cursor-pointer">
+            <button className="hidden md:flex p-2 text-black hover:text-gray-900 cursor-pointer">
               <span className="sr-only">Search</span>
               <svg
                 className="h-5 w-5"
@@ -116,7 +116,7 @@ export function Navbar() {
             {/* Cart */}
             <button
               onClick={toggleCart}
-              className="relative p-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+              className="relative p-2 text-black hover:text-gray-900 cursor-pointer"
             >
               <span className="sr-only">Cart</span>
               <ShoppingCart className="h-5 w-5" />
@@ -136,7 +136,7 @@ export function Navbar() {
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center space-x-2 text-sm font-medium text-gray-700 hover:text-gray-900 cursor-pointer"
+                  className="flex items-center space-x-2 text-sm font-medium text-black hover:text-gray-900 cursor-pointer"
                 >
                   <div className="h-8 w-8 rounded-full bg-rose-100 flex items-center justify-center">
                     <User className="h-4 w-4 text-rose-600" />
@@ -148,14 +148,14 @@ export function Navbar() {
                     <div className="py-1">
                       <Link
                         href={getDashboardLink()}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         Dashboard
                       </Link>
                       <Link
                         href="/dashboard/customer/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block px-4 py-2 text-sm text-black hover:bg-gray-100"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         My Profile
@@ -177,9 +177,9 @@ export function Navbar() {
             ) : (
               <div className="hidden md:flex items-center space-x-2">
                 <Link href="/login">
-                  <Button 
-                    size="sm" 
-                    className="bg-black text-gray-300 hover:bg-gray-900 hover:text-white hover:font-bold transition-all"
+                  <Button
+                    size="sm"
+                    className="bg-black text-white hover:bg-gray-900 hover:text-white hover:font-bold transition-all"
                   >
                     Sign In
                   </Button>
@@ -190,7 +190,7 @@ export function Navbar() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-600 hover:text-gray-900 cursor-pointer"
+              className="md:hidden p-2 text-black hover:text-gray-900 cursor-pointer"
             >
               <span className="sr-only">Menu</span>
               {mobileMenuOpen ? (
@@ -208,7 +208,7 @@ export function Navbar() {
             <div className="space-y-2">
               {/* Categories */}
               <div className="px-2">
-                <span className="text-xs font-semibold text-gray-500 uppercase">
+                <span className="text-xs font-semibold text-black uppercase">
                   Categories
                 </span>
               </div>
@@ -216,7 +216,7 @@ export function Navbar() {
                 <Link
                   key={category.name}
                   href={category.href}
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+                  className="block px-3 py-2 text-base font-medium text-black hover:bg-gray-100"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {category.name}
@@ -225,7 +225,7 @@ export function Navbar() {
 
               {/* Pages */}
               <div className="px-2 pt-4">
-                <span className="text-xs font-semibold text-gray-500 uppercase">
+                <span className="text-xs font-semibold text-black uppercase">
                   Pages
                 </span>
               </div>
@@ -233,7 +233,7 @@ export function Navbar() {
                 <Link
                   key={page.name}
                   href={page.href}
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+                  className="block px-3 py-2 text-base font-medium text-black hover:bg-gray-100"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {page.name}
@@ -261,7 +261,7 @@ export function Navbar() {
               ) : (
                 <div className="pt-4 flex flex-col space-y-2 px-3">
                   <Link href="/login">
-                    <Button className="w-full bg-black text-gray-300 hover:bg-gray-900 hover:text-white hover:font-bold transition-all">Sign In</Button>
+                    <Button className="w-full bg-black text-white hover:bg-gray-900 hover:text-white hover:font-bold transition-all">Sign In</Button>
                   </Link>
                 </div>
               )}

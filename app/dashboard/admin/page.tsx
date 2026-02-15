@@ -43,11 +43,10 @@ export default function AdminDashboard() {
   });
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (status === "loading") return;
-    
+
     if (status === "unauthenticated") {
       redirect("/login");
     }
@@ -91,116 +90,10 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="flex min-h-screen">
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* SideNavBar */}
-      <aside className={`
-        fixed lg:relative z-50 lg:z-0
-        w-64 h-full bg-white border-r border-slate-200 flex flex-col
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center text-white shrink-0">
-            <span className="material-symbols-outlined text-xl">hotel</span>
-          </div>
-          <div className="min-w-0">
-            <h1 className="text-sm font-bold tracking-tight uppercase">RentSquare</h1>
-            <p className="text-[10px] text-gray-500 font-medium">ADMIN PANEL</p>
-          </div>
-        </div>
-
-        {/* Close button for mobile */}
-        <button 
-          className="absolute top-4 right-4 lg:hidden p-2 text-gray-400"
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
-
-        <nav className="flex-1 px-4 space-y-1 mt-2 overflow-y-auto">
-          <Link 
-            href="/dashboard/admin" 
-            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="text-sm font-medium">Dashboard</span>
-          </Link>
-          <Link 
-            href="/dashboard/admin/users" 
-            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="material-symbols-outlined">group</span>
-            <span className="text-sm font-medium">User Management</span>
-          </Link>
-          <Link 
-            href="/dashboard/admin/vendors" 
-            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="material-symbols-outlined">verified_user</span>
-            <span className="text-sm font-medium">KYC Approvals</span>
-          </Link>
-          <Link 
-            href="/dashboard/admin/disputes" 
-            className="flex items-center gap-3 px-3 py-2.5 bg-rose-600/10 text-rose-600 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="material-symbols-outlined">gavel</span>
-            <span className="text-sm font-semibold">Disputes (Active)</span>
-          </Link>
-          <Link 
-            href="/dashboard/admin/finance" 
-            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="material-symbols-outlined">account_balance_wallet</span>
-            <span className="text-sm font-medium">Escrow Management</span>
-          </Link>
-          <Link 
-            href="/dashboard/admin/orders" 
-            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="material-symbols-outlined">analytics</span>
-            <span className="text-sm font-medium">Revenue Analytics</span>
-          </Link>
-          <Link 
-            href="/dashboard/admin/brands" 
-            className="flex items-center gap-3 px-3 py-2.5 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors"
-            onClick={() => setSidebarOpen(false)}
-          >
-            <span className="material-symbols-outlined">workspace_premium</span>
-            <span className="text-sm font-medium">Brands</span>
-          </Link>
-        </nav>
-
-        <div className="p-4 border-t border-slate-200 space-y-1">
-          <button className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-slate-50 rounded-lg transition-colors w-full">
-            <span className="material-symbols-outlined text-xl">settings</span>
-            <span className="text-sm font-medium">Settings</span>
-          </button>
-          <button 
-            className="flex items-center gap-3 px-3 py-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors w-full"
-            onClick={() => signOut({ callbackUrl: "/" })}
-          >
-            <span className="material-symbols-outlined text-xl">logout</span>
-            <span className="text-sm font-medium">Logout</span>
-          </button>
-        </div>
-      </aside>
+    <div className="p-4 lg:p-8">
 
       {/* Main Content */}
-      <main className="flex-1 p-4 lg:p-8 bg-gray-50">
+      <div className="flex-1">
         {/* Header */}
         <header className="flex items-center justify-between mb-6 lg:mb-8">
           <div>
@@ -210,7 +103,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-4">
             <div className="relative hidden md:block">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-              <input className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-rose-500 focus:border-rose-500 w-64" placeholder="Search disputes..." type="text"/>
+              <input className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-rose-500 focus:border-rose-500 w-64" placeholder="Search disputes..." type="text" />
             </div>
             <button className="p-2 text-gray-500 hover:bg-slate-100 rounded-lg relative">
               <span className="material-symbols-outlined">notifications</span>
@@ -300,12 +193,11 @@ export default function AdminDashboard() {
                             {dispute.rental?.orderNumber || "N/A"}
                           </td>
                           <td className="px-4 lg:px-6 py-4">
-                            <span className={`text-[11px] font-bold px-2 py-1 rounded uppercase ${
-                              dispute.type === "DAMAGE" ? "bg-red-100 text-red-600" :
-                              dispute.type === "LATE_RETURN" ? "bg-orange-100 text-orange-600" :
-                              dispute.type === "AUTHENTICITY" ? "bg-slate-100 text-gray-600" :
-                              "bg-blue-100 text-blue-600"
-                            }`}>
+                            <span className={`text-[11px] font-bold px-2 py-1 rounded uppercase ${dispute.type === "DAMAGE" ? "bg-red-100 text-red-600" :
+                                dispute.type === "LATE_RETURN" ? "bg-orange-100 text-orange-600" :
+                                  dispute.type === "AUTHENTICITY" ? "bg-slate-100 text-gray-600" :
+                                    "bg-blue-100 text-blue-600"
+                              }`}>
                               {dispute.type.replace("_", " ")}
                             </span>
                           </td>
@@ -376,7 +268,7 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

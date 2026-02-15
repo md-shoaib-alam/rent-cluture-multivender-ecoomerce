@@ -181,7 +181,7 @@ export default function HomePage() {
           <div className="flex justify-between items-end mb-8 px-4">
             <div>
               <h3 className="text-3xl font-black text-primary mb-2">Our Bestsellers</h3>
-              <p className="text-gray-500">Explore our most popular rental choices this season.</p>
+              <p className="text-black">Explore our most popular rental choices this season.</p>
             </div>
             {/* Navigation Buttons */}
             <div className="hidden md:flex gap-2">
@@ -221,7 +221,7 @@ export default function HomePage() {
 
                     <div className="space-y-1 px-2 pb-2">
                       <div className="flex justify-between items-start">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest line-clamp-1">{product.category.name}</p>
+                        <p className="text-[10px] font-bold text-black uppercase tracking-widest line-clamp-1">{product.category.name}</p>
                         <div className="flex items-center text-amber-400 gap-1 text-xs font-bold bg-amber-50 px-1.5 py-0.5 rounded-md">
                           <span className="material-symbols-outlined text-sm">star</span>
                           <span className="text-amber-700 text-[10px]">4.5</span>
@@ -232,7 +232,7 @@ export default function HomePage() {
 
                       <div className="flex items-center justify-between pt-2 mt-1">
                         <div className="flex flex-col">
-                          <span className="text-xs text-gray-400 font-medium line-through">₹{Math.round(product.dailyPrice * 1.2)}</span>
+                          <span className="text-xs text-black font-medium line-through">₹{Math.round(product.dailyPrice * 1.2)}</span>
                           <span className="text-2xl font-black text-gray-900">₹{product.dailyPrice}</span>
                         </div>
                         <button className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-md hover:bg-gray-800 transition-all group-hover:scale-110">
@@ -285,13 +285,13 @@ export default function HomePage() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">RentSquare</h2>
               </div>
-              <p className="text-gray-500 text-sm leading-relaxed">
+              <p className="text-black text-sm leading-relaxed">
                 India's premium fashion rental marketplace. Authentic designer wear, verified quality, and secure transactions.
               </p>
             </div>
             <div>
               <h4 className="font-bold text-gray-900 mb-6">Categories</h4>
-              <ul className="space-y-4 text-gray-500 text-sm">
+              <ul className="space-y-4 text-black text-sm">
                 <li><Link href="#" className="hover:text-primary">Wedding Collection</Link></li>
                 <li><Link href="#" className="hover:text-primary">Party Wear</Link></li>
                 <li><Link href="#" className="hover:text-primary">Jewellery</Link></li>
@@ -300,7 +300,7 @@ export default function HomePage() {
             </div>
             <div>
               <h4 className="font-bold text-gray-900 mb-6">Support</h4>
-              <ul className="space-y-4 text-gray-500 text-sm">
+              <ul className="space-y-4 text-black text-sm">
                 <li><Link href="#" className="hover:text-primary">Help Center</Link></li>
                 <li><Link href="#" className="hover:text-primary">Terms & Conditions</Link></li>
                 <li><Link href="#" className="hover:text-primary">Privacy Policy</Link></li>
@@ -309,7 +309,7 @@ export default function HomePage() {
             </div>
             <div>
               <h4 className="font-bold text-gray-900 mb-6">Subscribe</h4>
-              <p className="text-gray-500 text-sm mb-4">Get the latest trends and updates.</p>
+              <p className="text-black text-sm mb-4">Get the latest trends and updates.</p>
               <div className="flex gap-2">
                 <input className="flex-1 bg-white border border-gray-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Email address" />
                 <button className="bg-primary text-white p-2 rounded-lg hover:bg-primary/90">
@@ -318,7 +318,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-400 font-medium uppercase tracking-wider">
+          <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-black font-medium uppercase tracking-wider">
             <p>© 2024 RentSquare. All rights reserved.</p>
             <div className="flex gap-6">
               <a href="#" className="hover:text-primary">Instagram</a>

@@ -106,10 +106,10 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             <div className="mt-6">
               <div className="flex items-baseline gap-4">
-                <span className="text-3xl font-bold text-gray-900">${product.dailyPrice}</span>
+                <span className="text-3xl font-bold text-gray-900">₹{product.dailyPrice}</span>
                 <span className="text-gray-500">/day</span>
               </div>
-              <p className="text-sm text-gray-500 mt-1">Refundable deposit: ${product.deposit}</p>
+              <p className="text-sm text-gray-500 mt-1">Refundable deposit: ₹{product.deposit}</p>
             </div>
 
             <div className="mt-6">
@@ -144,7 +144,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
 
             <div className="mt-8">
               <Button onClick={handleAddToCart} size="xl" className="w-full">
-                Add to Cart - ${total}
+                Add to Cart - ₹{total}
               </Button>
             </div>
 

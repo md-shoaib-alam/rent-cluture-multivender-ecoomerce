@@ -89,14 +89,14 @@ export default function CartPage() {
                     </div>
                     <div className="mt-4 flex justify-between items-end">
                       <div>
-                        <p className="text-sm text-gray-500">${item.dailyPrice}/day</p>
-                        <p className="text-xs text-gray-500">Deposit: ${item.depositAmount}</p>
+                        <p className="text-sm text-gray-500">₹{item.dailyPrice}/day</p>
+                        <p className="text-xs text-gray-500">Deposit: ₹{item.depositAmount}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-gray-900">
-                          ${(item.dailyPrice * item.quantity).toFixed(2)}
+                          ₹{(item.dailyPrice * item.quantity).toFixed(2)}
                         </p>
-                        <p className="text-xs text-gray-500">+ ${item.depositAmount} deposit</p>
+                        <p className="text-xs text-gray-500">+ ₹{item.depositAmount} deposit</p>
                       </div>
                     </div>
                   </div>
@@ -113,11 +113,11 @@ export default function CartPage() {
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({rentalCount} items)</span>
-                  <span>${(items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0)).toFixed(2)}</span>
+                  <span>₹{(items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0)).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Deposit</span>
-                  <span>${totalDeposit.toFixed(2)}</span>
+                  <span>₹{totalDeposit.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Delivery</span>
@@ -126,7 +126,7 @@ export default function CartPage() {
                 <div className="border-t pt-2 mt-2">
                   <div className="flex justify-between font-bold text-gray-900">
                     <span>Total</span>
-                    <span>${(items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0) + totalDeposit).toFixed(2)}</span>
+                    <span>₹{(items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0) + totalDeposit).toFixed(2)}</span>
                   </div>
                 </div>
               </div>

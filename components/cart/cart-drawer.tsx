@@ -87,7 +87,7 @@ export function CartDrawer() {
                       Size: {item.variantSize || "N/A"}
                     </p>
                     <p className="text-xs text-gray-500">
-                      ${item.dailyPrice}/day
+                      ₹{item.dailyPrice}/day
                     </p>
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center border rounded-md">
@@ -106,7 +106,7 @@ export function CartDrawer() {
                         </button>
                       </div>
                       <p className="text-sm font-medium text-gray-900">
-                        ${(item.dailyPrice * item.quantity).toFixed(2)}
+                        ₹{(item.dailyPrice * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -122,15 +122,15 @@ export function CartDrawer() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm text-gray-600">
                 <span>Deposit</span>
-                <span>${totalDeposit.toFixed(2)}</span>
+                <span>₹{totalDeposit.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-semibold text-gray-900 pt-2 border-t">
                 <span>Total</span>
-                <span>${(subtotal + totalDeposit).toFixed(2)}</span>
+                <span>₹{(subtotal + totalDeposit).toFixed(2)}</span>
               </div>
             </div>
 

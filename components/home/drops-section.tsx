@@ -97,7 +97,7 @@ export function DropsSection() {
                                 culture
                             </span>
                         </div>
-                        <p className="text-gray-600 font-medium mt-4 tracking-wide text-sm md:text-base">
+                        <p className="text-black font-medium mt-4 tracking-wide text-sm md:text-base">
                             Loading products...
                         </p>
                     </div>
@@ -170,7 +170,7 @@ export function DropsSection() {
                             culture
                         </span>
                     </div>
-                    <p className="text-gray-600 font-medium mt-4 tracking-wide text-sm md:text-base">
+                    <p className="text-black font-medium mt-4 tracking-wide text-sm md:text-base">
                         Hottest Drip From Around The World. Refreshed Daily.
                     </p>
                 </div>
@@ -184,17 +184,17 @@ export function DropsSection() {
                                 const isActive = index === selectedIndex;
 
                                 return (
-                                    <div 
-                                        key={`${product.id}-${index}`} 
+                                    <div
+                                        key={`${product.id}-${index}`}
                                         className="flex-[0_0_50%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
-                                        style={{ 
+                                        style={{
                                             perspective: '1000px',
-                                            zIndex: slideStyle.zIndex 
+                                            zIndex: slideStyle.zIndex
                                         }}
                                         onClick={() => emblaApi?.scrollTo(index)}>
                                         <div
                                             className="transition-all duration-500 ease-out transform-gpu origin-bottom"
-                                            style={{...slideStyle, zIndex: 'auto'}}
+                                            style={{ ...slideStyle, zIndex: 'auto' }}
                                         >
                                             <div className="relative aspect-square">
                                                 {/* Image Container - removed animate-float */}
@@ -234,31 +234,31 @@ export function DropsSection() {
 
                 {/* Product Details Card */}
                 {activeProduct && (
-                <div className="max-w-sm mx-auto">
-                    <div className="bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-5 text-center relative overflow-hidden">
-                        <div className="relative z-10 transition-all duration-300">
-                            <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
-                                {activeProduct.name}
-                            </h3>
-                            <p className="text-2xl font-black text-gray-900 mb-4">
-                                ₹{activeProduct.price.toLocaleString('en-IN')}
-                            </p>
-                            <button className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-xs">
-                                Explore
-                            </button>
+                    <div className="max-w-sm mx-auto">
+                        <div className="bg-white border border-gray-100 shadow-[0_15px_30px_-10px_rgba(0,0,0,0.1)] rounded-xl p-5 text-center relative overflow-hidden">
+                            <div className="relative z-10 transition-all duration-300">
+                                <h3 className="text-lg font-bold text-gray-900 mb-1 truncate">
+                                    {activeProduct.name}
+                                </h3>
+                                <p className="text-2xl font-black text-gray-900 mb-4">
+                                    ₹{activeProduct.price.toLocaleString('en-IN')}
+                                </p>
+                                <button className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-xs">
+                                    Explore
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Pagination Dots */}
+                        <div className="flex justify-center gap-2 mt-6">
+                            {products.map((_, idx) => (
+                                <div key={idx}
+                                    onClick={() => emblaApi?.scrollTo(idx)}
+                                    className={`rounded-full transition-all duration-300 cursor-pointer ${idx === selectedIndex ? 'w-6 bg-black h-1' : 'w-1.5 h-1.5 bg-gray-300'}`}>
+                                </div>
+                            ))}
                         </div>
                     </div>
-
-                    {/* Pagination Dots */}
-                    <div className="flex justify-center gap-2 mt-6">
-                        {products.map((_, idx) => (
-                            <div key={idx}
-                                onClick={() => emblaApi?.scrollTo(idx)}
-                                className={`rounded-full transition-all duration-300 cursor-pointer ${idx === selectedIndex ? 'w-6 bg-black h-1' : 'w-1.5 h-1.5 bg-gray-300'}`}>
-                            </div>
-                        ))}
-                    </div>
-                </div>
                 )}
             </div>
         </section>

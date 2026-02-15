@@ -21,7 +21,7 @@ export function FeaturedBrands() {
 
     useEffect(() => {
         let isMounted = true;
-        
+
         const fetchBrands = async () => {
             try {
                 const res = await fetch('/api/brands?featured=true&active=true');
@@ -35,9 +35,9 @@ export function FeaturedBrands() {
                 console.error('Error fetching brands:', error);
             }
         };
-        
+
         fetchBrands();
-        
+
         return () => {
             isMounted = false;
         };
@@ -50,7 +50,7 @@ export function FeaturedBrands() {
                     <h3 className="text-lg md:text-xl font-bold text-gray-800 uppercase tracking-widest text-left">
                         Shop From Global Brands
                     </h3>
-                    <Link href="/brands" className="hidden md:flex items-center gap-2 text-xs font-semibold text-gray-600 hover:text-black transition-colors uppercase tracking-wider">
+                    <Link href="/brands" className="hidden md:flex items-center gap-2 text-xs font-semibold text-black hover:text-black transition-colors uppercase tracking-wider">
                         View all <ArrowRight className="w-3 h-3" />
                     </Link>
                 </div>
@@ -73,7 +73,7 @@ export function FeaturedBrands() {
                                             }}
                                         />
                                     </div>
-                                    <span className="text-xs font-semibold text-gray-500 group-hover:text-gray-900 transition-colors opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 duration-300">
+                                    <span className="text-xs font-semibold text-black group-hover:text-gray-900 transition-colors opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 duration-300">
                                         {brand.name}
                                     </span>
                                 </Link>

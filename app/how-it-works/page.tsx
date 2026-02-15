@@ -35,7 +35,7 @@ export default function HowItWorksPage() {
   ];
 
   const benefits = [
-    "Free delivery on orders over $100",
+    "Free delivery on orders over ₹100",
     "Professional cleaning between rentals",
     "Full deposit refund on return",
     "24/7 customer support",

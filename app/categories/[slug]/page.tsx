@@ -73,19 +73,19 @@ export default function CategoryPage() {
               <div className="space-y-2">
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">Under $50</span>
+                  <span className="ml-2 text-sm text-gray-700">Under ₹50</span>
                 </label>
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">$50 - $100</span>
+                  <span className="ml-2 text-sm text-gray-700">₹50 - ₹100</span>
                 </label>
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">$100 - $200</span>
+                  <span className="ml-2 text-sm text-gray-700">₹100 - ₹200</span>
                 </label>
                 <label className="flex items-center">
                   <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">Over $200</span>
+                  <span className="ml-2 text-sm text-gray-700">Over ₹200</span>
                 </label>
               </div>
             </div>
@@ -140,10 +140,10 @@ export default function CategoryPage() {
                       </span>
                     </div>
                     <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-gray-900">${product.price}</span>
+                      <span className="text-lg font-bold text-gray-900">₹{product.price}</span>
                       <span className="text-sm text-gray-500">/day</span>
                     </div>
-                    <p className="text-xs text-gray-500">Deposit: ${product.deposit}</p>
+                    <p className="text-xs text-gray-500">Deposit: ₹{product.deposit}</p>
                   </div>
                 </Link>
               ))}

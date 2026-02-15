@@ -247,11 +247,10 @@ export default function AdminBrandsPage() {
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleToggleActive(brand)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        brand.isActive
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${brand.isActive
                           ? 'bg-green-100 text-green-800'
                           : 'bg-gray-100 text-gray-600'
-                      }`}
+                        }`}
                     >
                       {brand.isActive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                       {brand.isActive ? 'Active' : 'Inactive'}
@@ -260,11 +259,10 @@ export default function AdminBrandsPage() {
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleToggleFeatured(brand)}
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                        brand.isFeatured
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${brand.isFeatured
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-gray-100 text-gray-600'
-                      }`}
+                        }`}
                     >
                       {brand.isFeatured ? <Star className="w-3 h-3" /> : <StarOff className="w-3 h-3" />}
                       {brand.isFeatured ? 'Featured' : 'Normal'}
@@ -312,7 +310,7 @@ export default function AdminBrandsPage() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-500"
                     placeholder="e.g., Sabyasachi"
                   />
                 </div>
@@ -325,7 +323,7 @@ export default function AdminBrandsPage() {
                     type="url"
                     value={formData.logo}
                     onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-500"
                     placeholder="https://..."
                   />
                   {formData.logo && (
@@ -349,7 +347,7 @@ export default function AdminBrandsPage() {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-500"
                     rows={3}
                     placeholder="Brand description..."
                   />
@@ -363,7 +361,7 @@ export default function AdminBrandsPage() {
                     type="url"
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-500"
                     placeholder="https://brand website"
                   />
                 </div>
@@ -376,7 +374,7 @@ export default function AdminBrandsPage() {
                     type="number"
                     value={formData.sortOrder}
                     onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-black placeholder-gray-500"
                     min="0"
                   />
                 </div>
@@ -407,7 +405,7 @@ export default function AdminBrandsPage() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
                   >
                     Cancel
                   </button>
