@@ -2,14 +2,16 @@
 
 import { useSession } from "next-auth/react";
 import { redirect, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Package, Clock, CreditCard, User, Star } from "lucide-react";
+import { Package, Clock, CreditCard, User, Star, Menu, X, Home, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 export default function CustomerDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Redirect vendors to vendor dashboard
   useEffect(() => {
@@ -19,7 +21,11 @@ export default function CustomerDashboard() {
   }, [status, session, router]);
 
   if (status === "loading") {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
   if (status === "unauthenticated") {
@@ -60,102 +66,210 @@ export default function CustomerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {session?.user?.name || "Customer"}!
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Manage your rentals and account settings
-          </p>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - Mobile Responsive like Flipkart */}
+      <aside className={`
+        fixed lg:relative z-50 lg:z-0
+        w-72 h-screen bg-white border-r border-gray-200 flex flex-col
+        transform transition-transform duration-300
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Logo Section */}
+        <div className="p-4 border-b border-gray-100">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
+              <span className="material-symbols-outlined">diamond</span>
+            </div>
+            <div>
+              <h1 className="font-bold text-lg leading-none text-gray-900">Rent Culture</h1>
+              <p className="text-xs text-gray-500 mt-1">Hello, {session?.user?.name?.split(' ')[0] || 'User'}</p>
+            </div>
+          </Link>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Package className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Active Rentals</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <Clock className="h-6 w-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Upcoming</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Star className="h-6 w-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Reviews</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center">
-              <div className="p-3 bg-rose-100 rounded-lg">
-                <CreditCard className="h-6 w-6 text-rose-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-gray-500">Wallet</p>
-                <p className="text-2xl font-bold text-gray-900">$0</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Menu Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <Link 
+            href="/dashboard/customer" 
+            onClick={() => setSidebarOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg font-medium"
+          >
+            <Home className="h-5 w-5" />
+            <span>Home</span>
+          </Link>
+          
           {menuItems.map((item) => (
             <Link
               key={item.title}
               href={item.href}
-              className="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow"
+              onClick={() => setSidebarOpen(false)}
+              className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-gray-100 rounded-lg">
-                  <item.icon className="h-6 w-6 text-gray-600" />
-                </div>
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-              <p className="mt-1 text-sm text-gray-500">{item.description}</p>
+              <item.icon className="h-5 w-5" />
+              <span>{item.title}</span>
             </Link>
           ))}
-        </div>
+        </nav>
 
-        {/* Become a Vendor CTA */}
-        <div className="mt-8 bg-gradient-to-r from-rose-500 to-pink-600 rounded-lg shadow p-8 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold">Start Selling?</h2>
-              <p className="mt-2 text-rose-100">
-                Have fashion items to rent out? Become a vendor and start earning today!
-              </p>
-            </div>
-            <Link href="/vendor/signup">
-              <Button variant="secondary" size="lg">
-                Become a Vendor
-              </Button>
-            </Link>
-          </div>
+        {/* Logout */}
+        <div className="p-4 border-t border-gray-100">
+          <button 
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg w-full transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>Logout</span>
+          </button>
         </div>
+      </aside>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Mobile Header */}
+        <header className="h-14 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:hidden sticky top-0 z-30">
+          <button 
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 -ml-2 text-gray-700"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+              <span className="material-symbols-outlined text-lg">diamond</span>
+            </div>
+            <span className="font-bold text-lg text-gray-900">Rent Culture</span>
+          </Link>
+          <div className="w-10"></div>
+        </header>
+
+        {/* Desktop Header */}
+        <header className="hidden lg:flex h-16 bg-white border-b border-gray-200 items-center justify-between px-8 sticky top-0 z-30">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-white">
+              <span className="material-symbols-outlined">diamond</span>
+            </div>
+            <h1 className="font-bold text-xl text-gray-900">Rent Culture</h1>
+          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/" className="text-gray-600 hover:text-gray-900 font-medium">Home</Link>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                {session?.user?.name?.[0] || "U"}
+              </div>
+              <span className="font-medium text-gray-900">{session?.user?.name || "User"}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+          {/* Welcome Header */}
+          <div className="mb-6 lg:mb-8">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              Welcome back, {session?.user?.name?.split(' ')[0] || "Customer"}!
+            </h1>
+            <p className="mt-1 lg:mt-2 text-gray-600">
+              Manage your rentals and account settings
+            </p>
+          </div>
+
+          {/* Quick Stats - Responsive Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mb-6 lg:mb-8">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 lg:p-3 bg-blue-100 rounded-lg">
+                  <Package className="h-5 w-5 lg:h-6 lg:w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-xs lg:text-sm text-gray-500">Active Rentals</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 lg:p-3 bg-green-100 rounded-lg">
+                  <Clock className="h-5 w-5 lg:h-6 lg:w-6 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-xs lg:text-sm text-gray-500">Upcoming</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 lg:p-3 bg-purple-100 rounded-lg">
+                  <Star className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-xs lg:text-sm text-gray-500">Reviews</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 lg:p-3 bg-rose-100 rounded-lg">
+                  <CreditCard className="h-5 w-5 lg:h-6 lg:w-6 text-rose-600" />
+                </div>
+                <div>
+                  <p className="text-xs lg:text-sm text-gray-500">Wallet</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">₹0</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Menu Grid - Flipkart Style */}
+          <div className="mb-6 lg:mb-8">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">My Account</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
+              {menuItems.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6 hover:shadow-md hover:border-primary transition-all group"
+                >
+                  <div className="flex items-center justify-center mb-3 lg:mb-4">
+                    <div className="p-3 bg-gray-100 rounded-full group-hover:bg-primary/10 transition-colors">
+                      <item.icon className="h-6 w-6 lg:h-8 lg:w-8 text-gray-600 group-hover:text-primary transition-colors" />
+                    </div>
+                  </div>
+                  <h3 className="text-sm lg:text-base font-semibold text-gray-900 text-center">{item.title}</h3>
+                  <p className="mt-1 text-xs text-gray-500 text-center hidden lg:block">{item.description}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Become a Vendor CTA */}
+          <div className="bg-gradient-to-r from-primary to-blue-600 rounded-lg shadow-md p-6 lg:p-8 text-white">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+              <div>
+                <h2 className="text-xl lg:text-2xl font-bold">Start Selling?</h2>
+                <p className="mt-2 text-white/80 text-sm lg:text-base">
+                  Have fashion items to rent out? Become a vendor and start earning today!
+                </p>
+              </div>
+              <Link href="/vendors/apply">
+                <Button variant="secondary" size="lg" className="whitespace-nowrap">
+                  Become a Vendor
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </main>
       </div>
     </div>
   );
 }
+
