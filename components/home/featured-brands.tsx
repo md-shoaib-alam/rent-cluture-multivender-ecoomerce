@@ -60,11 +60,11 @@ export function FeaturedBrands() {
                         {brands.map((brand) => (
                             <div key={brand.id} className="flex-[0_0_auto] pl-4 md:pl-8">
                                 <Link href={`/brand/${brand.name.toLowerCase()}`} className="group flex flex-col items-center gap-3">
-                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border border-gray-100 bg-white flex items-center justify-center p-6 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300">
+                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300">
                                         <img
                                             src={brand.logo}
                                             alt={brand.name}
-                                            className="w-full h-full object-contain filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-110"
+                                            className="w-full h-full object-contain filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
                                             onError={(e) => {
                                                 // Fallback if image fails
                                                 e.currentTarget.style.display = 'none';

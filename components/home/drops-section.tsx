@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface DropProduct {
     id: string;
@@ -184,14 +185,20 @@ export function DropsSection() {
                                 const isActive = index === selectedIndex;
 
                                 return (
-                                    <div
+                                    <Link
+                                        href={`/product/${product.slug || product.id}`}
                                         key={`${product.id}-${index}`}
                                         className="flex-[0_0_70%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
                                         style={{
                                             perspective: '1000px',
                                             zIndex: slideStyle.zIndex
                                         }}
-                                        onClick={() => emblaApi?.scrollTo(index)}>
+                                        onClick={(e) => {
+                                            if (!isActive) {
+                                                e.preventDefault();
+                                                emblaApi?.scrollTo(index);
+                                            }
+                                        }}>
                                         <div
                                             className="transition-all duration-500 ease-out transform-gpu origin-bottom"
                                             style={{ ...slideStyle, zIndex: 'auto' }}
@@ -208,10 +215,10 @@ export function DropsSection() {
                                             </div>
 
                                             {/* Shadow Effect */}
-                                            <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/20 rounded-[100%] blur-md transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
+                                            <div className={`absolute -bottom-16 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/20 rounded-[100%] blur-md transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
                                                 }`}></div>
                                         </div>
-                                    </div>
+                                    </Link>
                                 );
                             })}
                         </div>
@@ -243,9 +250,12 @@ export function DropsSection() {
                                 <p className="text-2xl font-black text-gray-900 mb-4">
                                     ₹{activeProduct.price.toLocaleString('en-IN')}
                                 </p>
-                                <button className="w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-xs">
+                                <Link
+                                    href={`/product/${activeProduct.slug || activeProduct.id}`}
+                                    className="block w-full bg-black text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors uppercase tracking-wider text-xs"
+                                >
                                     Explore
-                                </button>
+                                </Link>
                             </div>
                         </div>
 
