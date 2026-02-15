@@ -128,21 +128,38 @@ export function DropsSection() {
     const activeProduct = DEMO_DROPS[selectedIndex];
 
     // Helper to calculate distance from active slide handling loop
-    const getSlideStyles = (index: number) => {
+    const getSlideStyle = (index: number) => {
         const total = DEMO_DROPS.length;
-        // Calculate shortest distance in a loop
         let diff = Math.abs(index - selectedIndex);
         if (diff > total / 2) {
             diff = total - diff;
         }
 
-        // Scale and Opacity logic
+        // 3D Transform logic for smoother z-sorting
+        // Center: High Z, Scale Up
+        // Neighbors: Mid Z, Scale Down
+        // Far: Low Z, Scale Further Down
         if (diff === 0) {
-            return "scale-125 opacity-100 z-20 blur-none"; // Center
+            return {
+                transform: 'translateZ(200px) scale(1.1)',
+                opacity: 1,
+                filter: 'blur(0px)',
+                zIndex: 20
+            };
         } else if (diff === 1) {
-            return "scale-90 opacity-80 z-10 blur-[0.5px]"; // Immediate Neighbors
+            return {
+                transform: 'translateZ(100px) scale(0.9)',
+                opacity: 0.8,
+                filter: 'blur(0.5px)',
+                zIndex: 10
+            };
         } else {
-            return "scale-75 opacity-50 z-0 blur-[2px]"; // Far Neighbors
+            return {
+                transform: 'translateZ(0px) scale(0.75)',
+                opacity: 0.5,
+                filter: 'blur(2px)',
+                zIndex: 0
+            };
         }
     };
 
@@ -181,19 +198,23 @@ export function DropsSection() {
 
                 {/* 3D Carousel */}
                 <div className="relative max-w-[1400px] mx-auto mb-12">
-                    <div className="overflow-hidden py-16" ref={emblaRef}>
-                        <div className="flex -ml-4 touch-pan-y items-center">
+                    <div className="overflow-hidden py-16" ref={emblaRef} style={{ perspective: '1000px' }}>
+                        <div className="flex -ml-4 touch-pan-y items-center" style={{ transformStyle: 'preserve-3d' }}>
                             {DEMO_DROPS.map((product, index) => {
-                                const slideStyle = getSlideStyles(index);
+                                const slideStyle = getSlideStyle(index);
                                 const isActive = index === selectedIndex;
 
                                 return (
-                                    <div key={product.id} className="flex-[0_0_50%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer transition-all duration-500 ease-out"
+                                    <div key={product.id} className="flex-[0_0_50%] md:flex-[0_0_33.33%] lg:flex-[0_0_20%] pl-4 min-w-0 relative group cursor-pointer"
+                                        style={{ perspective: '1000px' }} // Local perspective for item if needed, but mainly container
                                         onClick={() => emblaApi?.scrollTo(index)}>
-                                        <div className={`transition-all duration-500 ease-out transform origin-bottom ${slideStyle}`}>
+                                        <div
+                                            className="transition-all duration-500 ease-out transform-gpu origin-bottom"
+                                            style={slideStyle}
+                                        >
                                             <div className="relative aspect-square">
-                                                {/* Floating Animation for active item */}
-                                                <div className={isActive ? 'animate-float' : ''}>
+                                                {/* Image Container - removed animate-float */}
+                                                <div>
                                                     <img
                                                         src={product.image}
                                                         alt={product.name}
@@ -201,7 +222,7 @@ export function DropsSection() {
                                                     />
                                                 </div>
 
-                                                {/* 3D Shadow Effect */}
+                                                {/* Shadow Effect */}
                                                 <div className={`absolute -bottom-8 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-black/20 rounded-[100%] blur-md transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-50'
                                                     }`}></div>
                                             </div>
@@ -241,8 +262,6 @@ export function DropsSection() {
                                 Explore
                             </button>
                         </div>
-
-
                     </div>
 
                     {/* Pagination Dots */}
@@ -256,17 +275,6 @@ export function DropsSection() {
                     </div>
                 </div>
             </div>
-
-            <style jsx global>{`
-          @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-          }
-          .animate-float {
-            animation: float 4s ease-in-out infinite;
-          }
-        `}</style>
         </section>
     );
 }
