@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 
 export async function GET(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -14,8 +14,9 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const { id } = await params;
         const user = await prisma.user.findUnique({
-            where: { id: params.id },
+            where: { id },
             include: {
                 customer: {
                     include: {
@@ -26,20 +27,11 @@ export async function GET(
                                 items: true,
                             }
                         },
-                        addresses: true, // Note: Address is directly on User in schema, checking again.. No, Address model has userId, User has addresses[]
                     }
                 },
                 vendor: true,
                 addresses: true,
-                _count: {
-                    select: {
-                        rentals: true, // This relationship might not be direct on User, checking schema...
-                        // User -> Customer -> Rentals. The schema says Customer has Rentals.
-                    }
-                }
             },
-            // Note: Relation count shortcut might not work if relation is deep.
-            // We'll rely on fetching the relational data.
         });
 
         if (!user) {

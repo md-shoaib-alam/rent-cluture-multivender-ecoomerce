@@ -103,7 +103,7 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-4">
             <div className="relative hidden md:block">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">search</span>
-              <input className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-rose-500 focus:border-rose-500 w-64" placeholder="Search disputes..." type="text" />
+              <input className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-rose-500 focus:border-rose-500 w-64 text-black placeholder-gray-500" placeholder="Search disputes..." type="text" />
             </div>
             <button className="p-2 text-gray-500 hover:bg-slate-100 rounded-lg relative">
               <span className="material-symbols-outlined">notifications</span>
@@ -194,9 +194,9 @@ export default function AdminDashboard() {
                           </td>
                           <td className="px-4 lg:px-6 py-4">
                             <span className={`text-[11px] font-bold px-2 py-1 rounded uppercase ${dispute.type === "DAMAGE" ? "bg-red-100 text-red-600" :
-                                dispute.type === "LATE_RETURN" ? "bg-orange-100 text-orange-600" :
-                                  dispute.type === "AUTHENTICITY" ? "bg-slate-100 text-gray-600" :
-                                    "bg-blue-100 text-blue-600"
+                              dispute.type === "LATE_RETURN" ? "bg-orange-100 text-orange-600" :
+                                dispute.type === "AUTHENTICITY" ? "bg-slate-100 text-gray-600" :
+                                  "bg-blue-100 text-blue-600"
                               }`}>
                               {dispute.type.replace("_", " ")}
                             </span>
