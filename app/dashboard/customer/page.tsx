@@ -5,7 +5,7 @@ import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Package, Clock, CreditCard, User, Star, Menu, X, Home, LogOut } from "lucide-react";
+import { Package, Clock, CreditCard, User, Star, Menu, X, Home, LogOut, MapPin } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 export default function CustomerDashboard() {
@@ -63,6 +63,12 @@ export default function CustomerDashboard() {
       icon: Star,
       href: "/dashboard/customer/reviews",
     },
+    {
+      title: "Addresses",
+      description: "Manage your delivery addresses",
+      icon: MapPin,
+      href: "/dashboard/customer/addresses",
+    },
   ];
 
   return (
@@ -90,7 +96,7 @@ export default function CustomerDashboard() {
             </div>
             <div>
               <h1 className="font-bold text-lg leading-none text-gray-900">Rent Culture</h1>
-              <p className="text-xs text-gray-500 mt-1">Hello, {session?.user?.name?.split(' ')[0] || 'User'}</p>
+              <p className="text-xs text-gray-800 mt-1">Hello, {session?.user?.name?.split(' ')[0] || 'User'}</p>
             </div>
           </Link>
         </div>
@@ -176,7 +182,7 @@ export default function CustomerDashboard() {
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
               Welcome back, {session?.user?.name?.split(' ')[0] || "Customer"}!
             </h1>
-            <p className="mt-1 lg:mt-2 text-gray-600">
+            <p className="mt-1 lg:mt-2 text-gray-900">
               Manage your rentals and account settings
             </p>
           </div>
@@ -189,7 +195,7 @@ export default function CustomerDashboard() {
                   <Package className="h-5 w-5 lg:h-6 lg:w-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-xs lg:text-sm text-gray-500">Active Rentals</p>
+                  <p className="text-xs lg:text-sm text-gray-800">Active Rentals</p>
                   <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
                 </div>
               </div>
@@ -200,7 +206,7 @@ export default function CustomerDashboard() {
                   <Clock className="h-5 w-5 lg:h-6 lg:w-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-xs lg:text-sm text-gray-500">Upcoming</p>
+                  <p className="text-xs lg:text-sm text-gray-800">Upcoming</p>
                   <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
                 </div>
               </div>
@@ -211,7 +217,7 @@ export default function CustomerDashboard() {
                   <Star className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" />
                 </div>
                 <div>
-                  <p className="text-xs lg:text-sm text-gray-500">Reviews</p>
+                  <p className="text-xs lg:text-sm text-gray-800">Reviews</p>
                   <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
                 </div>
               </div>
@@ -222,7 +228,7 @@ export default function CustomerDashboard() {
                   <CreditCard className="h-5 w-5 lg:h-6 lg:w-6 text-rose-600" />
                 </div>
                 <div>
-                  <p className="text-xs lg:text-sm text-gray-500">Wallet</p>
+                  <p className="text-xs lg:text-sm text-gray-800">Wallet</p>
                   <p className="text-lg lg:text-2xl font-bold text-gray-900">₹0</p>
                 </div>
               </div>
@@ -245,28 +251,12 @@ export default function CustomerDashboard() {
                     </div>
                   </div>
                   <h3 className="text-sm lg:text-base font-semibold text-gray-900 text-center">{item.title}</h3>
-                  <p className="mt-1 text-xs text-gray-500 text-center hidden lg:block">{item.description}</p>
+                  <p className="mt-1 text-xs text-gray-800 text-center hidden lg:block">{item.description}</p>
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* Become a Vendor CTA */}
-          <div className="bg-gradient-to-r from-primary to-blue-600 rounded-lg shadow-md p-6 lg:p-8 text-white">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div>
-                <h2 className="text-xl lg:text-2xl font-bold">Start Selling?</h2>
-                <p className="mt-2 text-white/80 text-sm lg:text-base">
-                  Have fashion items to rent out? Become a vendor and start earning today!
-                </p>
-              </div>
-              <Link href="/vendors/apply">
-                <Button variant="secondary" size="lg" className="whitespace-nowrap">
-                  Become a Vendor
-                </Button>
-              </Link>
-            </div>
-          </div>
         </main>
       </div>
     </div>
