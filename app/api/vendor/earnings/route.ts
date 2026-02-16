@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     const rentals = await prisma.rental.findMany({
       where: {
         vendorId: vendor.id,
-        status: { in: ["COMPLETED", "DELIVERED", "ACTIVE"] },
+        status: { in: ["DELIVERED", "ACTIVE", "RETURNED"] },
       },
       include: {
         items: true,
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       by: ["createdAt"],
       where: {
         vendorId: vendor.id,
-        status: { in: ["COMPLETED", "DELIVERED", "ACTIVE"] },
+        status: { in: ["DELIVERED", "ACTIVE", "RETURNED"] },
       },
       _sum: {
         totalAmount: true,
@@ -74,6 +74,12 @@ export async function GET(request: Request) {
       rating: Number(vendor.rating),
       payouts,
       rentals: rentals.length,
+      bankDetails: {
+        bankName: vendor.bankName,
+        bankAccount: vendor.bankAccount,
+        bankRouting: vendor.bankRouting,
+        paypalEmail: vendor.paypalEmail,
+      },
     });
   } catch (error) {
     console.error("Error fetching vendor earnings:", error);

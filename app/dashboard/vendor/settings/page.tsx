@@ -190,17 +190,31 @@ export default function VendorSettingsPage() {
       {/* Payment Tab */}
       {activeTab === "payment" && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">
-            Payment Settings
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            Bank Account Details
           </h2>
           <p className="text-sm text-gray-500 mb-6">
-            Configure how you receive payouts from your rentals.
+            Add your Indian bank account to receive payouts via NEFT/IMPS.
           </p>
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bank Name
+                  Account Holder Name *
+                </label>
+                <input
+                  type="text"
+                  value={formData.businessName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, businessName: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Name as per bank records"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bank Name *
                 </label>
                 <input
                   type="text"
@@ -209,11 +223,12 @@ export default function VendorSettingsPage() {
                     setFormData({ ...formData, bankName: e.target.value })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g., State Bank of India"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Account Number
+                  Account Number *
                 </label>
                 <input
                   type="text"
@@ -222,57 +237,98 @@ export default function VendorSettingsPage() {
                     setFormData({ ...formData, bankAccount: e.target.value })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your account number"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Routing Number
+                  Confirm Account Number *
+                </label>
+                <input
+                  type="text"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Re-enter account number"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  IFSC Code *
                 </label>
                 <input
                   type="text"
                   value={formData.bankRouting}
                   onChange={(e) =>
-                    setFormData({ ...formData, bankRouting: e.target.value })
+                    setFormData({ ...formData, bankRouting: e.target.value.toUpperCase() })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+                  placeholder="e.g., SBIN0001234"
+                  maxLength={11}
                 />
+                <p className="mt-1 text-xs text-gray-500">
+                  11-character code found on your cheque book or bank statement
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  PayPal Email
+                  Account Type
                 </label>
-                <input
-                  type="email"
-                  value={formData.paypalEmail}
-                  onChange={(e) =>
-                    setFormData({ ...formData, paypalEmail: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="savings">Savings Account</option>
+                  <option value="current">Current Account</option>
+                </select>
               </div>
             </div>
+
+            {/* Bank Info Preview */}
+            {formData.bankName && formData.bankAccount && formData.bankRouting && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-green-600 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>
+                    <h3 className="text-sm font-medium text-green-800">Bank Account Added</h3>
+                    <p className="text-sm text-green-700 mt-1">
+                      {formData.bankName} - ****{formData.bankAccount.slice(-4)}
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                      Payouts will be sent via NEFT/IMPS to this account
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex">
+                <svg className="w-5 h-5 text-blue-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-sm font-medium text-blue-800">
+                    Payout Information
+                  </h3>
+                  <ul className="text-sm text-blue-700 mt-1 space-y-1">
+                    <li>• Minimum payout amount: ₹100</li>
+                    <li>• Payouts are processed within 2-3 business days</li>
+                    <li>• NEFT/IMPS transfers are free of charge</li>
+                    <li>• Platform fee: 10% per transaction</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex">
-                <svg
-                  className="w-5 h-5 text-yellow-400 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
+                <svg className="w-5 h-5 text-yellow-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
                 <div>
                   <h3 className="text-sm font-medium text-yellow-800">
                     Security Notice
                   </h3>
                   <p className="text-sm text-yellow-700 mt-1">
-                    Your banking information is encrypted and securely stored.
-                    Never share your account details via email or chat.
+                    Your banking information is encrypted and securely stored. Never share your account details via email or chat.
                   </p>
                 </div>
               </div>
@@ -283,7 +339,7 @@ export default function VendorSettingsPage() {
                 disabled={saving}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
               >
-                {saving ? "Saving..." : "Save Changes"}
+                {saving ? "Saving..." : "Save Bank Details"}
               </button>
             </div>
           </div>
