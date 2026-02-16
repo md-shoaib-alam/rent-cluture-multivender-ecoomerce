@@ -1,98 +1,131 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
 
+// GET - Fetch vendor's own products
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get vendor info
+    // Get vendor profile
     const vendor = await prisma.vendor.findUnique({
       where: { userId: session.user.id },
     });
 
     if (!vendor) {
-      return NextResponse.json({ products: [] });
+      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "10");
-    const status = searchParams.get("status");
-    const search = searchParams.get("search");
-
-    const where: Record<string, unknown> = { vendorId: vendor.id };
-
-    if (status && status !== "all") {
-      where.status = status;
-    }
-
-    if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { sku: { contains: search } },
-      ];
-    }
-
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        include: {
-          category: true,
-          variants: true,
+    const products = await prisma.product.findMany({
+      where: { vendorId: vendor.id },
+      include: {
+        category: {
+          select: { name: true },
         },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.product.count({ where }),
-    ]);
-
-    // Transform products to include inventory info
-    const transformedProducts = products.map((product) => {
-      const totalInventory = product.variants.reduce((sum, v) => sum + v.inventory, 0);
-      const availableInventory = product.variants.reduce(
-        (sum, v) => sum + (v.isAvailable ? v.inventory : 0),
-        0
-      );
-
-      let productStatus = "Active";
-      if (product.status === "DRAFT") productStatus = "Draft";
-      else if (product.status === "INACTIVE") productStatus = "Inactive";
-      else if (availableInventory === 0) productStatus = "Rented";
-      else if (totalInventory === 0) productStatus = "Maintenance";
-
-      return {
-        id: product.id,
-        name: product.name,
-        sku: product.slug,
-        category: product.category.name,
-        rentalPrice: Number(product.dailyPrice),
-        status: productStatus,
-        totalInventory,
-        availableInventory,
-        imageUrl: Array.isArray(product.images) && product.images.length > 0 
-          ? product.images[0] 
-          : null,
-      };
+        brand: {
+          select: { name: true },
+        },
+        variants: true,
+        _count: {
+          select: { rentals: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({
-      products: transformedProducts,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
+    return NextResponse.json({ products });
+  } catch (error) {
+    console.error("Error fetching vendor products:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST - Create a new product for vendor
+export async function POST(request: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get vendor profile
+    const vendor = await prisma.vendor.findUnique({
+      where: { userId: session.user.id },
+    });
+
+    if (!vendor) {
+      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
+    }
+
+    const body = await request.json();
+    const {
+      name,
+      slug,
+      description,
+      images,
+      dailyPrice,
+      weeklyPrice,
+      depositAmount,
+      categoryId,
+      brandId,
+      status,
+      isFeatured,
+      variants,
+    } = body;
+
+    if (!name || !dailyPrice || !categoryId) {
+      return NextResponse.json(
+        { error: "Name, price, and category are required" },
+        { status: 400 }
+      );
+    }
+
+    const product = await prisma.product.create({
+      data: {
+        name,
+        slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+        description,
+        images: images || [],
+        dailyPrice,
+        weeklyPrice,
+        depositAmount: depositAmount || 50,
+        categoryId,
+        brandId: brandId || null,
+        vendorId: vendor.id,
+        status: status || "DRAFT",
+        isFeatured: isFeatured ?? false,
+        variants: variants
+          ? {
+              create: variants.map((v: { size: string; color?: string; inventory: number }) => ({
+                size: v.size,
+                color: v.color,
+                inventory: v.inventory || 1,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        category: true,
+        brand: true,
+        variants: true,
       },
     });
+
+    return NextResponse.json({ product });
   } catch (error) {
-    console.error("Vendor products error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error creating product:", error);
+    return NextResponse.json(
+      { error: "Failed to create product" },
+      { status: 500 }
+    );
   }
 }

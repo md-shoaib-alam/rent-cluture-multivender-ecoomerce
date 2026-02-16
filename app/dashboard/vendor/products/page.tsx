@@ -1,64 +1,47 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Plus, Search, Filter, Eye, Edit, Trash2, Power, MoreVertical, Star, Calendar } from "lucide-react";
 
 interface Product {
   id: string;
   name: string;
-  sku: string;
-  category: string;
-  rentalPrice: number;
+  slug: string;
+  images: string[];
   status: string;
-  totalInventory: number;
-  availableInventory: number;
-  imageUrl?: string;
-}
-
-interface Pagination {
-  page: number;
-  limit: number;
-  total: number;
-  pages: number;
+  dailyPrice: number;
+  viewCount: number;
+  rentalCount: number;
+  rating: number;
+  createdAt: string;
+  category: {
+    name: string;
+  };
 }
 
 export default function VendorProductsPage() {
-  const { data: session, status } = useSession();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, pages: 0 });
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    if (status === "loading") return;
-    if (status === "unauthenticated") redirect("/login");
-    if (session?.user?.role !== "VENDOR" && session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
-    }
-  }, [status, session]);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     fetchProducts();
-  }, [filter, search, pagination.page]);
+  }, [statusFilter]);
 
   const fetchProducts = async () => {
-    setLoading(true);
     try {
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        limit: "10",
-        status: filter,
-      });
-      if (search) params.append("search", search);
-
-      const res = await fetch(`/api/vendor/products?${params}`);
+      setLoading(true);
+      const url = statusFilter
+        ? `/api/vendor/products?status=${statusFilter}`
+        : "/api/vendor/products";
+      const res = await fetch(url);
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         setProducts(data.products || []);
-        setPagination(data.pagination || { page: 1, limit: 10, total: 0, pages: 0 });
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -67,290 +50,235 @@ export default function VendorProductsPage() {
     }
   };
 
+  const deleteProduct = async (productId: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+
+    try {
+      const res = await fetch(`/api/vendor/products/${productId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
+  const toggleProductStatus = async (productId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+    try {
+      const res = await fetch(`/api/vendor/products/${productId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        fetchProducts();
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "bg-emerald-500/10 text-emerald-400";
-      case "Rented":
-        return "bg-blue-500/10 text-blue-400";
-      case "Maintenance":
-        return "bg-orange-500/10 text-orange-400";
-      default:
-        return "bg-slate-700 text-slate-400";
-    }
+    const colors: Record<string, string> = {
+      ACTIVE: "bg-green-100 text-green-800 border-green-200",
+      INACTIVE: "bg-gray-100 text-gray-800 border-gray-200",
+      DRAFT: "bg-yellow-100 text-yellow-800 border-yellow-200",
+      ARCHIVED: "bg-red-100 text-red-800 border-red-200",
+    };
+    return colors[status] || "bg-gray-100 text-gray-800";
   };
 
-  const getInventoryColor = (status: string) => {
-    switch (status) {
-      case "Active":
-        return "#10b981";
-      case "Rented":
-        return "#3b82f6";
-      case "Maintenance":
-        return "#f97316";
-      default:
-        return "#64748b";
-    }
-  };
-
-  const getInventoryPercentage = (available: number, total: number) => {
-    if (total === 0) return 0;
-    return (available / total) * 100;
-  };
-
-  if (status === "loading" || loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background-dark">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-        </div>
-      </div>
-    );
-  }
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
-        <div className="p-6 flex items-center gap-3">
-          <div className="size-10 rounded-lg bg-primary flex items-center justify-center text-white">
-            <span className="material-symbols-outlined">apparel</span>
+    <div className="p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">My Listings</h1>
+          <p className="text-gray-600 mt-1">Manage your rental products</p>
+        </div>
+        <Link
+          href="/dashboard/vendor/products/add"
+          className="inline-flex items-center justify-center px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium shadow-sm gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          <span>Add Product</span>
+        </Link>
+      </div>
+
+      {/* Filters */}
+      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+        <div className="flex-1 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-500" />
           </div>
-          <div>
-            <h1 className="font-bold text-lg leading-none text-white">Rent Culture</h1>
-            <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">Seller Hub</p>
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder:text-gray-500 bg-white shadow-sm transition-all"
+          />
+        </div>
+        <div className="relative min-w-[200px]">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Filter className="h-5 w-5 text-gray-500" />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 bg-white shadow-sm appearance-none cursor-pointer font-medium"
+          >
+            <option value="">All Status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="DRAFT">Draft</option>
+            <option value="ARCHIVED">Archived</option>
+          </select>
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
         </div>
-        
-        <nav className="flex-1 px-4 space-y-1 mt-4">
-          <Link href="/dashboard/vendor" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="text-sm">Dashboard</span>
-          </Link>
-          <Link href="/dashboard/vendor/products" className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold">
-            <span className="material-symbols-outlined">inventory_2</span>
-            <span className="text-sm">My Listings</span>
-          </Link>
-          <Link href="/dashboard/vendor/orders" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">shopping_bag</span>
-            <span className="text-sm">Orders</span>
-          </Link>
-          <Link href="/dashboard/vendor/earnings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">payments</span>
-            <span className="text-sm">Earnings</span>
-          </Link>
-          <Link href="/dashboard/vendor/analytics" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">analytics</span>
-            <span className="text-sm">Analytics</span>
-          </Link>
-          
-          <div className="pt-4 pb-2">
-            <p className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Account</p>
-          </div>
-          
-          <Link href="/dashboard/vendor/kyc" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">verified_user</span>
-            <span className="text-sm">KYC & Agreement</span>
-          </Link>
-          <Link href="/dashboard/vendor/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm">Settings</span>
-          </Link>
-        </nav>
-        
-        <div className="p-4 border-t border-slate-800">
-          <div className="bg-slate-800/50 p-4 rounded-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-700">
-                {session?.user?.image ? (
-                  <img className="w-full h-full object-cover" src={session.user.image} alt="User" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold">
-                    {session?.user?.name?.[0] || "V"}
-                  </div>
-                )}
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-white">{session?.user?.name || "Vendor"}</p>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider">Premium Seller</p>
-              </div>
-            </div>
-          </div>
+      </div>
+
+      {/* Products Grid */}
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8 flex-shrink-0">
-          <h1 className="text-xl font-bold text-white">My Listings</h1>
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-full bg-slate-700 overflow-hidden">
-              {session?.user?.image ? (
-                <img alt="Profile" className="w-full h-full object-cover" src={session.user.image} />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold">
-                  {session?.user?.name?.[0] || "V"}
-                </div>
-              )}
-            </div>
+      ) : filteredProducts.length === 0 ? (
+        <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-200">
+          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m0 0l8 4m8-4l8 4m-8-4v10m0 0l8-4m-8 4l-8-4" />
+            </svg>
           </div>
-        </header>
-
-        <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-background-dark">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-white">Manage Listings</h2>
-              <p className="text-sm text-slate-500 mt-1">Track and manage your products</p>
-            </div>
-            <Link href="/dashboard/vendor/products/add" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 transition-all shadow-sm">
-              <span className="material-symbols-outlined">add</span>
+          <h3 className="mt-2 text-lg font-bold text-gray-900">No products found</h3>
+          <p className="mt-1 text-gray-500 max-w-sm mx-auto">
+            {searchQuery || statusFilter ? "Try adjusting your filters." : "Get started by adding your first product to the platform."}
+          </p>
+          {!searchQuery && !statusFilter && (
+            <Link
+              href="/dashboard/vendor/products/add"
+              className="mt-6 inline-flex px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-bold shadow-sm"
+            >
               Add New Product
             </Link>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1 max-w-md">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">search</span>
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <div className="flex gap-2">
-              {["all", "Active", "DRAFT", "INACTIVE"].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilter(status)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filter === status
-                      ? "bg-primary text-white"
-                      : "bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700"
-                  }`}
-                >
-                  {status === "all" ? "All" : status}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Products Table */}
-          <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-            {products.length === 0 ? (
-              <div className="p-12 text-center">
-                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="material-symbols-outlined text-slate-500 text-3xl">inventory_2</span>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <div key={product.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+              <div className="aspect-w-16 aspect-h-10 bg-gray-100 relative group">
+                {product.images && product.images.length > 0 ? (
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-48 flex items-center justify-center text-gray-300 bg-gray-50">
+                    <svg
+                      className="w-12 h-12"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                )}
+                <div className="absolute top-3 right-3">
+                  <span
+                    className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide border shadow-sm ${getStatusColor(
+                      product.status
+                    )}`}
+                  >
+                    {product.status}
+                  </span>
                 </div>
-                <h3 className="text-lg font-bold mb-2 text-white">No products found</h3>
-                <p className="text-slate-500 mb-4">Start adding products to your inventory</p>
-                <Link href="/dashboard/vendor/products/add" className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 transition-all">
-                  <span className="material-symbols-outlined">add</span>
-                  Add Your First Product
-                </Link>
               </div>
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-800/50 text-slate-400 text-xs font-bold uppercase">
-                      <tr>
-                        <th className="px-6 py-4">Product</th>
-                        <th className="px-6 py-4">Category</th>
-                        <th className="px-6 py-4">Price</th>
-                        <th className="px-6 py-4">Status</th>
-                        <th className="px-6 py-4">Inventory</th>
-                        <th className="px-6 py-4 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      {products.map((product) => (
-                        <tr key={product.id} className="hover:bg-slate-800/30">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-4">
-                              <div className="size-12 rounded-lg bg-slate-800 overflow-hidden">
-                                {product.imageUrl ? (
-                                  <img alt={product.name} className="w-full h-full object-cover" src={product.imageUrl} />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-slate-500">image</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div>
-                                <p className="font-bold text-sm text-white">{product.name}</p>
-                                <p className="text-xs text-slate-500">SKU: {product.sku}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-slate-400">{product.category}</td>
-                          <td className="px-6 py-4 font-bold text-white">₹{product.rentalPrice}/day</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${getStatusColor(product.status)}`}>
-                              {product.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1 w-24">
-                              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                                <div
-                                  className="h-full rounded-full"
-                                  style={{
-                                    width: `${getInventoryPercentage(product.availableInventory, product.totalInventory)}%`,
-                                    backgroundColor: getInventoryColor(product.status),
-                                  }}
-                                ></div>
-                              </div>
-                              <span className="text-xs text-slate-500">
-                                {product.availableInventory} / {product.totalInventory}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              <Link href={`/dashboard/vendor/products/${product.id}/edit`} className="p-2 text-slate-400 hover:text-primary transition-colors">
-                                <span className="material-symbols-outlined">edit</span>
-                              </Link>
-                              <button className="p-2 text-slate-400 hover:text-red-500 transition-colors">
-                                <span className="material-symbols-outlined">delete</span>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+
+              <div className="p-4 flex-1 flex flex-col">
+                <div className="mb-3">
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{product.category?.name}</p>
+                  <h3 className="font-bold text-gray-900 text-lg line-clamp-1 mb-1">
+                    {product.name}
+                  </h3>
                 </div>
-                {/* Pagination */}
-                <div className="p-4 bg-slate-800/50 flex items-center justify-between border-t border-slate-800">
-                  <p className="text-xs text-slate-500">
-                    Showing {(pagination.page - 1) * pagination.limit + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} products
-                  </p>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-                      disabled={pagination.page === 1}
-                      className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-xs font-bold text-slate-400 disabled:opacity-50 hover:bg-slate-700"
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-                      disabled={pagination.page >= pagination.pages}
-                      className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded text-xs font-bold text-slate-400 disabled:opacity-50 hover:bg-slate-700"
-                    >
-                      Next
-                    </button>
+
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-bold text-gray-900 text-lg">
+                    ₹{Number(product.dailyPrice).toLocaleString()}<span className="text-sm text-gray-500 font-medium">/day</span>
+                  </span>
+                  <div className="flex items-center text-sm font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-lg">
+                    <Star className="w-3.5 h-3.5 text-yellow-500 mr-1 fill-yellow-500" />
+                    {Number(product.rating).toFixed(1)}
                   </div>
                 </div>
-              </>
-            )}
-          </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm text-gray-500 mb-4 bg-gray-50 p-2 rounded-lg border border-gray-100">
+                  <div className="flex items-center gap-1.5 justify-center border-r border-gray-200">
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>{product.viewCount} views</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 justify-center">
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>{product.rentalCount} rentals</span>
+                  </div>
+                </div>
+
+                <div className="mt-auto grid grid-cols-2 gap-2">
+                  <Link
+                    href={`/product/${product.slug}`}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    View
+                  </Link>
+                  <Link
+                    href={`/dashboard/vendor/products/${product.id}/edit`}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-sm"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                    Edit
+                  </Link>
+                  <button
+                    onClick={() => toggleProductStatus(product.id, product.status)}
+                    className={`flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition border ${product.status === "ACTIVE"
+                        ? "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                        : "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                      }`}
+                  >
+                    <Power className="w-3.5 h-3.5" />
+                    {product.status === "ACTIVE" ? "Disable" : "Enable"}
+                  </button>
+                  <button
+                    onClick={() => deleteProduct(product.id)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-red-700 bg-red-50 border border-red-100 rounded-lg hover:bg-red-100 transition"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
+      )}
     </div>
   );
 }

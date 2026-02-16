@@ -3,14 +3,25 @@
 import { useCartStore } from "@/store/cart";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { X, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { X, Trash2, ShoppingBag, ArrowRight, Heart } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export function CartDrawer() {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { items, isOpen, setCartOpen, removeItem, updateQuantity, getTotalDeposit } = useCartStore();
+  const {
+    items,
+    wishlist,
+    isOpen,
+    setCartOpen,
+    removeItem,
+    updateQuantity,
+    getTotalDeposit,
+    moveToWishlist,
+    moveToCart,
+    removeFromWishlist,
+  } = useCartStore();
 
   const totalDeposit = getTotalDeposit();
   const subtotal = items.reduce((sum, item) => sum + item.dailyPrice * item.quantity, 0);
@@ -18,10 +29,10 @@ export function CartDrawer() {
   const handleCheckout = () => {
     setCartOpen(false);
     if (status === "unauthenticated") {
-      router.push("/login?callbackUrl=/cart");
+      router.push("/login?callbackUrl=/checkout");
       return;
     }
-    router.push("/cart");
+    router.push("/checkout");
   };
 
   if (!isOpen) return null;
@@ -64,18 +75,29 @@ export function CartDrawer() {
             <div className="space-y-4">
               {items.map((item) => (
                 <div key={item.id} className="flex gap-3 bg-gray-50 rounded-lg p-3">
-                  <div className="w-20 h-24 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
-                    <img
-                      src={item.productImage}
-                      alt={item.productName}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <Link
+                    href={`/product/${item.productId}`}
+                    onClick={() => setCartOpen(false)}
+                    className="flex-shrink-0"
+                  >
+                    <div className="w-20 h-24 bg-gray-200 rounded-md overflow-hidden">
+                      <img
+                        src={item.productImage}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </Link>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {item.productName}
-                      </h3>
+                      <Link
+                        href={`/product/${item.productId}`}
+                        onClick={() => setCartOpen(false)}
+                      >
+                        <h3 className="text-sm font-medium text-gray-900 truncate hover:text-rose-600">
+                          {item.productName}
+                        </h3>
+                      </Link>
                       <button
                         onClick={() => removeItem(item.productId, item.variantId)}
                         className="text-gray-400 hover:text-red-500 flex-shrink-0"
@@ -92,14 +114,22 @@ export function CartDrawer() {
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center border rounded-md">
                         <button
-                          onClick={() => updateQuantity(item.productId, Math.max(1, item.quantity - 1), item.variantId)}
+                          onClick={() =>
+                            updateQuantity(
+                              item.productId,
+                              Math.max(1, item.quantity - 1),
+                              item.variantId
+                            )
+                          }
                           className="px-2 py-1 text-gray-600 hover:bg-gray-100"
                         >
                           -
                         </button>
                         <span className="px-2 py-1 text-sm">{item.quantity}</span>
                         <button
-                          onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
+                          onClick={() =>
+                            updateQuantity(item.productId, item.quantity + 1, item.variantId)
+                          }
                           className="px-2 py-1 text-gray-600 hover:bg-gray-100"
                         >
                           +
@@ -109,9 +139,61 @@ export function CartDrawer() {
                         ₹{(item.dailyPrice * item.quantity).toFixed(2)}
                       </p>
                     </div>
+                    {/* Save for Later */}
+                    <button
+                      onClick={() => moveToWishlist(item.productId, item.variantId)}
+                      className="flex items-center gap-1 text-xs text-gray-500 hover:text-rose-600 mt-2"
+                    >
+                      <Heart className="h-3 w-3" />
+                      Save for Later
+                    </button>
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Wishlist Items */}
+          {wishlist.length > 0 && (
+            <div className="mt-6 pt-6 border-t">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <Heart className="h-4 w-4 text-rose-600" />
+                Saved for Later ({wishlist.length})
+              </h3>
+              <div className="space-y-3">
+                {wishlist.map((item) => (
+                  <div key={item.id} className="flex gap-3 bg-rose-50 rounded-lg p-3">
+                    <div className="w-16 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
+                      <img
+                        src={item.productImage}
+                        alt={item.productName}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {item.productName}
+                      </p>
+                      <p className="text-xs text-gray-500">₹{item.dailyPrice}/day</p>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => moveToCart(item.productId, item.variantId)}
+                          className="text-xs text-rose-600 hover:text-rose-700 font-medium"
+                        >
+                          Move to Cart
+                        </button>
+                        <span className="text-gray-300">|</span>
+                        <button
+                          onClick={() => removeFromWishlist(item.productId, item.variantId)}
+                          className="text-xs text-gray-500 hover:text-red-500"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -134,8 +216,12 @@ export function CartDrawer() {
               </div>
             </div>
 
-            <Button className="w-full" size="lg" onClick={handleCheckout}>
-              {status === "unauthenticated" ? "Sign In to Checkout" : "View Cart & Checkout"}
+            <Button
+              className="w-full bg-rose-600 hover:bg-rose-700"
+              size="lg"
+              onClick={handleCheckout}
+            >
+              {status === "unauthenticated" ? "Sign In to Checkout" : "Proceed to Checkout"}
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
 

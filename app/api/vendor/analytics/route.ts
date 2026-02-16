@@ -1,135 +1,109 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
 
-export async function GET() {
+// GET - Fetch vendor's analytics
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get vendor info
     const vendor = await prisma.vendor.findUnique({
       where: { userId: session.user.id },
     });
 
     if (!vendor) {
-      return NextResponse.json({
-        overview: {
-          totalProducts: 0,
-          activeListings: 0,
-          totalRentals: 0,
-          averageRating: 0,
-        },
-        revenue: {
-          total: 0,
-          thisMonth: 0,
-          lastMonth: 0,
-        },
-        topProducts: [],
-        monthlyData: [],
-      });
+      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
     }
 
-    // Get overview stats
-    const [totalProducts, activeProducts, totalRentals, vendorRating] = await Promise.all([
-      prisma.product.count({ where: { vendorId: vendor.id } }),
-      prisma.product.count({ where: { vendorId: vendor.id, status: "ACTIVE" } }),
-      prisma.rental.count({ where: { vendorId: vendor.id } }),
-      prisma.rental.aggregate({
-        where: { vendorId: vendor.id, status: { in: ["RETURNED", "DELIVERED"] } },
-        _avg: { totalAmount: true },
-      }),
-    ]);
+    const { searchParams } = new URL(request.url);
+    const days = parseInt(searchParams.get("days") || "30");
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
 
-    // Get this month and last month revenue
-    const now = new Date();
-    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-
-    const [thisMonthRevenue, lastMonthRevenue] = await Promise.all([
-      prisma.rental.aggregate({
-        where: {
-          vendorId: vendor.id,
-          status: { in: ["RETURNED", "DELIVERED"] },
-          createdAt: { gte: thisMonthStart },
-        },
-        _sum: { totalAmount: true },
-      }),
-      prisma.rental.aggregate({
-        where: {
-          vendorId: vendor.id,
-          status: { in: ["RETURNED", "DELIVERED"] },
-          createdAt: { gte: lastMonthStart, lte: lastMonthEnd },
-        },
-        _sum: { totalAmount: true },
-      }),
-    ]);
-
-    // Get top products
-    const topProducts = await prisma.product.findMany({
+    // Get total views from products
+    const products = await prisma.product.findMany({
       where: { vendorId: vendor.id },
-      orderBy: { rentalCount: "desc" },
-      take: 5,
       select: {
         id: true,
         name: true,
-        images: true,
+        viewCount: true,
         rentalCount: true,
         rating: true,
+        reviews: true,
       },
     });
 
-    // Get monthly data for the last 6 months
-    const monthlyData = [];
-    for (let i = 5; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 0);
-      
-      const monthData = await prisma.rental.aggregate({
-        where: {
-          vendorId: vendor.id,
-          status: { in: ["RETURNED", "DELIVERED"] },
-          createdAt: { gte: monthStart, lte: monthEnd },
-        },
-        _sum: { totalAmount: true },
-        _count: true,
-      });
+    const totalViews = products.reduce((sum, p) => sum + p.viewCount, 0);
+    const totalRentals = products.reduce((sum, p) => sum + p.rentalCount, 0);
+    const averageRating =
+      products.length > 0
+        ? products.reduce((sum, p) => sum + Number(p.rating), 0) / products.length
+        : 0;
 
-      monthlyData.push({
-        month: monthStart.toLocaleString("default", { month: "short" }),
-        revenue: monthData._sum.totalAmount?.toNumber() || 0,
-        orders: monthData._count || 0,
+    // Get revenue from completed rentals
+    const rentals = await prisma.rental.findMany({
+      where: {
+        vendorId: vendor.id,
+        status: { in: ["COMPLETED", "DELIVERED", "ACTIVE"] },
+        createdAt: { gte: startDate },
+      },
+      include: {
+        items: true,
+      },
+    });
+
+    const totalRevenue = rentals.reduce((sum, rental) => {
+      return sum + Number(rental.totalAmount);
+    }, 0);
+
+    // Top products by revenue
+    const productRevenue: Record<string, { name: string; revenue: number; views: number; rentals: number; rating: number }> = {};
+    
+    rentals.forEach((rental) => {
+      rental.items.forEach((item) => {
+        if (!productRevenue[item.productId]) {
+          const product = products.find((p) => p.id === item.productId);
+          productRevenue[item.productId] = {
+            name: item.productName,
+            revenue: 0,
+            views: product?.viewCount || 0,
+            rentals: product?.rentalCount || 0,
+            rating: product ? Number(product.rating) : 0,
+          };
+        }
+        productRevenue[item.productId].revenue += Number(item.subtotal);
       });
-    }
+    });
+
+    const topProducts = Object.entries(productRevenue)
+      .map(([id, data]) => ({
+        id,
+        name: data.name,
+        views: data.views,
+        rentals: data.rentals,
+        revenue: data.revenue,
+        rating: data.rating,
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
 
     return NextResponse.json({
-      overview: {
-        totalProducts,
-        activeListings: activeProducts,
-        totalRentals,
-        averageRating: Number(vendor.rating) || 0,
-      },
-      revenue: {
-        total: vendorRating._avg.totalAmount?.toNumber() || 0,
-        thisMonth: thisMonthRevenue._sum.totalAmount?.toNumber() || 0,
-        lastMonth: lastMonthRevenue._sum.totalAmount?.toNumber() || 0,
-      },
-      topProducts: topProducts.map((p) => ({
-        id: p.id,
-        name: p.name,
-        image: Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : null,
-        rentals: p.rentalCount,
-        rating: Number(p.rating),
-      })),
-      monthlyData,
+      totalViews,
+      totalRentals,
+      totalRevenue,
+      averageRating,
+      topProducts,
     });
   } catch (error) {
-    console.error("Vendor analytics error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error fetching vendor analytics:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch analytics" },
+      { status: 500 }
+    );
   }
 }

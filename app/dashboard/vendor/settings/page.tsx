@@ -1,60 +1,56 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Save, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface VendorSettings {
+  id: string;
   businessName: string;
   description: string;
-  phone: string;
-  logo: string;
-  banner: string;
-  email: string;
+  logo: string | null;
+  banner: string | null;
+  phone: string | null;
+  bankName: string | null;
+  bankAccount: string | null;
+  bankRouting: string | null;
+  paypalEmail: string | null;
 }
 
 export default function VendorSettingsPage() {
-  const { data: session, status, update } = useSession();
+  const [data, setData] = useState<VendorSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
-  const [settings, setSettings] = useState<VendorSettings>({
+  const [activeTab, setActiveTab] = useState("profile");
+  const [formData, setFormData] = useState({
     businessName: "",
     description: "",
     phone: "",
-    logo: "",
-    banner: "",
-    email: "",
+    bankName: "",
+    bankAccount: "",
+    bankRouting: "",
+    paypalEmail: "",
   });
 
   useEffect(() => {
-    if (status === "loading") return;
-    if (status === "unauthenticated") redirect("/login");
-    if (session?.user?.role !== "VENDOR" && session?.user?.role !== "ADMIN") {
-      redirect("/dashboard/customer");
-    }
     fetchSettings();
-  }, [status, session]);
+  }, []);
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("/api/vendor/profile");
+      setLoading(true);
+      const res = await fetch("/api/vendor/settings");
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
-        if (data.vendor) {
-          setSettings({
-            businessName: data.vendor.businessName || "",
-            description: data.vendor.description || "",
-            phone: data.vendor.phone || "",
-            logo: data.vendor.logo || "",
-            banner: data.vendor.banner || "",
-            email: session?.user?.email || "",
-          });
-        }
+        setData(data);
+        setFormData({
+          businessName: data.businessName || "",
+          description: data.description || "",
+          phone: data.phone || "",
+          bankName: data.bankName || "",
+          bankAccount: data.bankAccount || "",
+          bankRouting: data.bankRouting || "",
+          paypalEmail: data.paypalEmail || "",
+        });
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -63,273 +59,307 @@ export default function VendorSettingsPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setSettings({ ...settings, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError("");
-    setSuccess(false);
-
+  const handleSave = async () => {
     try {
-      const res = await fetch("/api/vendor/profile", {
+      setSaving(true);
+      const res = await fetch("/api/vendor/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(formData),
       });
-
       if (res.ok) {
-        setSuccess(true);
-        setTimeout(() => setSuccess(false), 3000);
-      } else {
-        const data = await res.json();
-        setError(data.error || "Failed to save settings");
+        fetchSettings();
       }
     } catch (error) {
       console.error("Error saving settings:", error);
-      setError("An error occurred");
     } finally {
       setSaving(false);
     }
   };
 
-  if (status === "loading" || loading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-dark">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-        </div>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col">
-        <div className="p-6 flex items-center gap-3">
-          <div className="size-10 rounded-lg bg-primary flex items-center justify-center text-white">
-            <span className="material-symbols-outlined">apparel</span>
-          </div>
-          <div>
-            <h1 className="font-bold text-lg leading-none text-white">Rent Culture</h1>
-            <p className="text-xs text-slate-500 mt-1 uppercase tracking-wider">Seller Hub</p>
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <p className="text-gray-600">Manage your vendor account settings</p>
+      </div>
+
+      {/* Tabs */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="-mb-px flex space-x-8">
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "profile"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Business Profile
+          </button>
+          <button
+            onClick={() => setActiveTab("payment")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "payment"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Payment Settings
+          </button>
+          <button
+            onClick={() => setActiveTab("notifications")}
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              activeTab === "notifications"
+                ? "border-blue-500 text-blue-600"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Notifications
+          </button>
+        </nav>
+      </div>
+
+      {/* Profile Tab */}
+      {activeTab === "profile" && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Business Profile
+          </h2>
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Business Name
+              </label>
+              <input
+                type="text"
+                value={formData.businessName}
+                onChange={(e) =>
+                  setFormData({ ...formData, businessName: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={formData.phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
           </div>
         </div>
-        
-        <nav className="flex-1 px-4 space-y-1 mt-4">
-          <Link href="/dashboard/vendor" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">dashboard</span>
-            <span className="text-sm">Dashboard</span>
-          </Link>
-          <Link href="/dashboard/vendor/products" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">inventory_2</span>
-            <span className="text-sm">My Listings</span>
-          </Link>
-          <Link href="/dashboard/vendor/orders" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">shopping_bag</span>
-            <span className="text-sm">Orders</span>
-          </Link>
-          <Link href="/dashboard/vendor/earnings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">payments</span>
-            <span className="text-sm">Earnings</span>
-          </Link>
-          <Link href="/dashboard/vendor/analytics" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">analytics</span>
-            <span className="text-sm">Analytics</span>
-          </Link>
-          
-          <div className="pt-4 pb-2">
-            <p className="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Account</p>
-          </div>
-          
-          <Link href="/dashboard/vendor/kyc" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 transition-colors">
-            <span className="material-symbols-outlined">verified_user</span>
-            <span className="text-sm">KYC & Agreement</span>
-          </Link>
-          <Link href="/dashboard/vendor/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm">Settings</span>
-          </Link>
-        </nav>
-        
-        <div className="p-4 border-t border-slate-800">
-          <div className="bg-slate-800/50 p-4 rounded-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-700">
-                {session?.user?.image ? (
-                  <img className="w-full h-full object-cover" src={session.user.image} alt="User" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold">
-                    {session?.user?.name?.[0] || "V"}
-                  </div>
-                )}
+      )}
+
+      {/* Payment Tab */}
+      {activeTab === "payment" && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Payment Settings
+          </h2>
+          <p className="text-sm text-gray-500 mb-6">
+            Configure how you receive payouts from your rentals.
+          </p>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bank Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bankName: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
               <div>
-                <p className="text-xs font-semibold text-white">{session?.user?.name || "Vendor"}</p>
-                <p className="text-[10px] text-slate-400 uppercase tracking-wider">Premium Seller</p>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Account Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankAccount}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bankAccount: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Routing Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankRouting}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bankRouting: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  PayPal Email
+                </label>
+                <input
+                  type="email"
+                  value={formData.paypalEmail}
+                  onChange={(e) =>
+                    setFormData({ ...formData, paypalEmail: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
               </div>
             </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-16 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-8 flex-shrink-0">
-          <h1 className="text-xl font-bold text-white">Settings</h1>
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-full bg-slate-700 overflow-hidden">
-              {session?.user?.image ? (
-                <img alt="Profile" className="w-full h-full object-cover" src={session.user.image} />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-primary text-white font-bold">
-                  {session?.user?.name?.[0] || "V"}
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        <div className="flex-1 overflow-y-auto p-8 bg-background-dark">
-          {success && (
-            <div className="mb-6 p-4 bg-green-500/10 text-green-400 rounded-lg border border-green-500/20">
-              Settings saved successfully!
-            </div>
-          )}
-
-          {error && (
-            <div className="mb-6 p-4 bg-red-500/10 text-red-400 rounded-lg border border-red-500/20">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-            {/* Business Information */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-              <h2 className="text-lg font-bold mb-6 text-white">Business Information</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">
-                    Business Name
-                  </label>
-                  <input
-                    type="text"
-                    name="businessName"
-                    value={settings.businessName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-700 bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-slate-500"
-                    required
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex">
+                <svg
+                  className="w-5 h-5 text-yellow-400 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
                   />
-                </div>
-
+                </svg>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={settings.email}
-                    disabled
-                    className="w-full px-4 py-2 border border-slate-700 bg-slate-800/50 rounded-lg text-slate-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    value={settings.phone}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-700 bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-slate-500"
-                    placeholder="+91 98765 43210"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">
-                    Description
-                  </label>
-                  <textarea
-                    name="description"
-                    value={settings.description}
-                    onChange={handleChange}
-                    rows={4}
-                    className="w-full px-4 py-2 border border-slate-700 bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-slate-500"
-                    placeholder="Tell customers about your business..."
-                  />
+                  <h3 className="text-sm font-medium text-yellow-800">
+                    Security Notice
+                  </h3>
+                  <p className="text-sm text-yellow-700 mt-1">
+                    Your banking information is encrypted and securely stored.
+                    Never share your account details via email or chat.
+                  </p>
                 </div>
               </div>
             </div>
-
-            {/* Business Images */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-              <h2 className="text-lg font-bold mb-6 text-white">Business Images</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">
-                    Logo URL
-                  </label>
-                  <input
-                    type="url"
-                    name="logo"
-                    value={settings.logo}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-700 bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-slate-500"
-                    placeholder="https://example.com/logo.png"
-                  />
-                  {settings.logo && (
-                    <div className="mt-2 w-24 h-24 rounded-lg overflow-hidden bg-slate-800">
-                      <img src={settings.logo} alt="Logo preview" className="w-full h-full object-contain" />
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">
-                    Banner URL
-                  </label>
-                  <input
-                    type="url"
-                    name="banner"
-                    value={settings.banner}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-slate-700 bg-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white placeholder:text-slate-500"
-                    placeholder="https://example.com/banner.png"
-                  />
-                  {settings.banner && (
-                    <div className="mt-2 w-full h-32 rounded-lg overflow-hidden bg-slate-800">
-                      <img src={settings.banner} alt="Banner preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button */}
             <div className="flex justify-end">
-              <Button type="submit" disabled={saving} className="px-6 py-2.5 bg-primary">
-                {saving ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Changes
-                  </>
-                )}
-              </Button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
             </div>
-          </form>
+          </div>
         </div>
-      </main>
+      )}
+
+      {/* Notifications Tab */}
+      {activeTab === "notifications" && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Notification Preferences
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between py-3 border-b">
+              <div>
+                <p className="font-medium text-gray-900">New Orders</p>
+                <p className="text-sm text-gray-500">
+                  Get notified when you receive a new order
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" defaultChecked className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="flex items-center justify-between py-3 border-b">
+              <div>
+                <p className="font-medium text-gray-900">Order Updates</p>
+                <p className="text-sm text-gray-500">
+                  Get notified about order status changes
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" defaultChecked className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="flex items-center justify-between py-3 border-b">
+              <div>
+                <p className="font-medium text-gray-900">New Reviews</p>
+                <p className="text-sm text-gray-500">
+                  Get notified when customers leave reviews
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" defaultChecked className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="flex items-center justify-between py-3 border-b">
+              <div>
+                <p className="font-medium text-gray-900">Payout Updates</p>
+                <p className="text-sm text-gray-500">
+                  Get notified about payout status changes
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" defaultChecked className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="flex items-center justify-between py-3">
+              <div>
+                <p className="font-medium text-gray-900">Marketing Emails</p>
+                <p className="text-sm text-gray-500">
+                  Receive tips and updates about RentSquare
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

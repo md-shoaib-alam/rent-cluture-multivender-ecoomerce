@@ -1,105 +1,85 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
 
-export async function GET() {
+// GET - Fetch vendor's earnings and analytics
+export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.id) {
+    if (!session || !session.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get vendor info
     const vendor = await prisma.vendor.findUnique({
       where: { userId: session.user.id },
     });
 
     if (!vendor) {
-      return NextResponse.json({
-        totalEarnings: 0,
-        pendingPayout: 0,
-        completedPayouts: 0,
-        recentEarnings: [],
-      });
+      return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
     }
 
-    // Get completed rentals earnings
-    const completedRentals = await prisma.rental.aggregate({
+    // Get all completed rentals for this vendor
+    const rentals = await prisma.rental.findMany({
       where: {
         vendorId: vendor.id,
-        status: { in: ["RETURNED", "DELIVERED"] },
-      },
-      _sum: {
-        totalAmount: true,
-      },
-      _count: true,
-    });
-
-    // Get pending payouts
-    const pendingPayouts = await prisma.payout.aggregate({
-      where: {
-        vendorId: vendor.id,
-        status: "PENDING",
-      },
-      _sum: {
-        amount: true,
-      },
-    });
-
-    // Get completed payouts
-    const completedPayouts = await prisma.payout.aggregate({
-      where: {
-        vendorId: vendor.id,
-        status: "COMPLETED",
-      },
-      _sum: {
-        amount: true,
-      },
-      _count: true,
-    });
-
-    // Get recent earnings
-    const recentRentals = await prisma.rental.findMany({
-      where: {
-        vendorId: vendor.id,
-        status: { in: ["RETURNED", "DELIVERED"] },
+        status: { in: ["COMPLETED", "DELIVERED", "ACTIVE"] },
       },
       include: {
-        customer: {
-          include: {
-            user: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
+        items: true,
+        payment: true,
       },
-      orderBy: { updatedAt: "desc" },
+    });
+
+    // Calculate earnings
+    const totalEarnings = rentals.reduce((sum, rental) => {
+      const rentalTotal = Number(rental.totalAmount);
+      const platformFee = Number(rental.platformFee);
+      return sum + (rentalTotal - platformFee);
+    }, 0);
+
+    const pendingPayouts = rentals
+      .filter((r) => r.status === "ACTIVE" || r.status === "DELIVERED")
+      .reduce((sum, rental) => {
+        const rentalTotal = Number(rental.totalAmount);
+        const platformFee = Number(rental.platformFee);
+        return sum + (rentalTotal - platformFee);
+      }, 0);
+
+    // Get payouts
+    const payouts = await prisma.payout.findMany({
+      where: { vendorId: vendor.id },
+      orderBy: { createdAt: "desc" },
       take: 10,
     });
 
-    const recentEarnings = recentRentals.map((rental) => ({
-      id: rental.id,
-      orderNumber: rental.orderNumber,
-      customerName: rental.customer.user.name || "Unknown",
-      amount: Number(rental.totalAmount),
-      status: rental.status,
-      date: rental.updatedAt,
-    }));
+    // Monthly earnings breakdown
+    const monthlyEarnings = await prisma.rental.groupBy({
+      by: ["createdAt"],
+      where: {
+        vendorId: vendor.id,
+        status: { in: ["COMPLETED", "DELIVERED", "ACTIVE"] },
+      },
+      _sum: {
+        totalAmount: true,
+        platformFee: true,
+      },
+    });
 
     return NextResponse.json({
-      totalEarnings: completedRentals._sum.totalAmount?.toNumber() || 0,
-      totalOrders: completedRentals._count || 0,
-      pendingPayout: pendingPayouts._sum.amount?.toNumber() || 0,
-      completedPayouts: completedPayouts._sum.amount?.toNumber() || 0,
-      payoutCount: completedPayouts._count || 0,
-      recentEarnings,
+      totalEarnings,
+      pendingPayouts,
+      totalSales: vendor.totalSales,
+      rating: Number(vendor.rating),
+      payouts,
+      rentals: rentals.length,
     });
   } catch (error) {
-    console.error("Vendor earnings error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error fetching vendor earnings:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch earnings" },
+      { status: 500 }
+    );
   }
 }
