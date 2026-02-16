@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -10,7 +9,8 @@ export async function GET(request: Request) {
     const featured = searchParams.get("featured") === "true";
     const active = searchParams.get("active") !== "false";
 
-    const where: Prisma.BrandWhereInput = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {};
 
     if (featured) {
       where.isFeatured = true;

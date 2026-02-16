@@ -1,63 +1,78 @@
+"use client";
+
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Filter, Grid, List, Star } from "lucide-react";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { Grid, List, Star } from "lucide-react";
 
-// Mock data for demonstration - replace with API calls
-const categories = [
-  { name: "Wedding", slug: "wedding", count: 120, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=500&fit=crop" },
-  { name: "Party", slug: "party", count: 85, image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=500&fit=crop" },
-  { name: "Casual", slug: "casual", count: 200, image: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&h=500&fit=crop" },
-  { name: "Formal", slug: "formal", count: 95, image: "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&h=500&fit=crop" },
-];
+interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  images: string[];
+  dailyPrice: number;
+  deposit: number;
+  rating: number;
+  reviewCount: number;
+  vendor: {
+    businessName: string;
+  };
+  category: {
+    name: string;
+  };
+}
 
-const products = [
-  {
-    id: "1",
-    name: "Elegant Evening Gown",
-    vendor: "Fashion Boutique",
-    price: 89,
-    deposit: 150,
-    rating: 4.8,
-    reviews: 24,
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=500&fit=crop",
-    sizes: ["XS", "S", "M", "L", "XL"],
-  },
-  {
-    id: "2",
-    name: "Designer Cocktail Dress",
-    vendor: "Style Hub",
-    price: 65,
-    deposit: 100,
-    rating: 4.5,
-    reviews: 18,
-    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&h=500&fit=crop",
-    sizes: ["S", "M", "L"],
-  },
-  {
-    id: "3",
-    name: "Casual Summer Dress",
-    vendor: "Trendy Wear",
-    price: 35,
-    deposit: 50,
-    rating: 4.2,
-    reviews: 42,
-    image: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=400&h=500&fit=crop",
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-  },
-  {
-    id: "4",
-    name: "Formal Business Suit",
-    vendor: "Corporate Style",
-    price: 120,
-    deposit: 200,
-    rating: 4.9,
-    reviews: 56,
-    image: "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&h=500&fit=crop",
-    sizes: ["S", "M", "L", "XL"],
-  },
-];
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+  _count?: {
+    products: number;
+  };
+}
 
 export default function CategoriesPage() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [catRes, prodRes] = await Promise.all([
+        fetch("/api/categories"),
+        fetch("/api/products?limit=12")
+      ]);
+      
+      if (catRes.ok) {
+        const catData = await catRes.json();
+        setCategories(catData.categories || []);
+      }
+      
+      if (prodRes.ok) {
+        const prodData = await prodRes.json();
+        setProducts(prodData.products || []);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
@@ -71,11 +86,11 @@ export default function CategoriesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
-          <div className="w-full lg:w-64 space-y-6">
+          <aside className="w-full lg:w-64 space-y-6" aria-label="Filters">
             {/* Categories */}
             <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Categories</h3>
-              <div className="space-y-2">
+              <h2 className="font-semibold text-gray-900 mb-4">Categories</h2>
+              <nav className="space-y-2">
                 {categories.map((cat) => (
                   <Link
                     key={cat.slug}
@@ -83,15 +98,15 @@ export default function CategoriesPage() {
                     className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-gray-100"
                   >
                     <span className="text-gray-700">{cat.name}</span>
-                    <span className="text-sm text-gray-500">{cat.count}</span>
+                    <span className="text-sm text-gray-500">{cat._count?.products || 0}</span>
                   </Link>
                 ))}
-              </div>
+              </nav>
             </div>
 
             {/* Size Filter */}
             <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Size</h3>
+              <h2 className="font-semibold text-gray-900 mb-4">Size</h2>
               <div className="flex flex-wrap gap-2">
                 {["XS", "S", "M", "L", "XL", "XXL"].map((size) => (
                   <button
@@ -106,86 +121,96 @@ export default function CategoriesPage() {
 
             {/* Price Filter */}
             <div className="bg-white rounded-lg shadow p-4">
-              <h3 className="font-semibold text-gray-900 mb-4">Price Range</h3>
+              <h2 className="font-semibold text-gray-900 mb-4">Price Range</h2>
               <div className="space-y-2">
-                <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">Under ₹50</span>
-                </label>
-                <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">₹50 - ₹100</span>
-                </label>
-                <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">₹100 - ₹200</span>
-                </label>
-                <label className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300" />
-                  <span className="ml-2 text-sm text-gray-700">Over ₹200</span>
-                </label>
+                {['Under ₹50', '₹50 - ₹100', '₹100 - ₹200', 'Over ₹200'].map((range) => (
+                  <label key={range} className="flex items-center">
+                    <input type="checkbox" className="rounded border-gray-300" />
+                    <span className="ml-2 text-sm text-gray-700">{range}</span>
+                  </label>
+                ))}
               </div>
             </div>
-          </div>
+          </aside>
 
           {/* Products Grid */}
-          <div className="flex-1">
+          <main className="flex-1">
             {/* Sort & View */}
             <div className="flex items-center justify-between mb-6">
-              <p className="text-gray-600">Showing {products.length} products</p>
+              <p className="text-gray-600">{products.length} products found</p>
               <div className="flex items-center space-x-4">
-                <select className="border rounded-md px-3 py-2 text-sm">
+                <select className="border rounded-md px-3 py-2 text-sm" aria-label="Sort products">
                   <option>Sort by: Popular</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
                   <option>Newest</option>
                   <option>Top Rated</option>
                 </select>
-                <div className="flex border rounded-md">
-                  <button className="p-2 hover:bg-gray-100">
+                <div className="flex border rounded-md" role="group" aria-label="View mode">
+                  <button 
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 ${viewMode === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+                    aria-label="Grid view"
+                    aria-pressed={viewMode === 'grid'}
+                  >
                     <Grid className="h-5 w-5" />
                   </button>
-                  <button className="p-2 hover:bg-gray-100">
+                  <button 
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 ${viewMode === 'list' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+                    aria-label="List view"
+                    aria-pressed={viewMode === 'list'}
+                  >
                     <List className="h-5 w-5" />
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Product Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/product/${product.id}`}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
-                >
-                  <div className="aspect-[4/5] bg-gray-200 rounded-t-lg overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <p className="text-sm text-gray-500">{product.vendor}</p>
-                    <h3 className="font-medium text-gray-900">{product.name}</h3>
-                    <div className="flex items-center mt-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="ml-1 text-sm text-gray-600">
-                        {product.rating} ({product.reviews})
-                      </span>
+            {products.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No products available at the moment.</p>
+              </div>
+            ) : (
+              <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+                {products.map((product, index) => (
+                  <Link
+                    key={product.id}
+                    href={`/product/${product.id}`}
+                    className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
+                  >
+                    <div className="aspect-[4/5] bg-gray-200 rounded-t-lg overflow-hidden relative">
+                      <Image
+                        src={product.images[0]}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        priority={index < 3}
+                        fetchPriority={index === 0 ? "high" : "auto"}
+                        loading={index < 3 ? "eager" : "lazy"}
+                        className="object-cover"
+                      />
                     </div>
-                    <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-gray-900">₹{product.price}</span>
-                      <span className="text-sm text-gray-500">/day</span>
+                    <div className="p-4">
+                      <p className="text-sm text-gray-500">{product.vendor?.businessName || 'Unknown Vendor'}</p>
+                      <h3 className="font-medium text-gray-900">{product.name}</h3>
+                      <div className="flex items-center mt-1" aria-label={`Rating: ${product.rating} out of 5`}>
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" aria-hidden="true" />
+                        <span className="ml-1 text-sm text-gray-600">
+                          {product.rating} ({product.reviewCount})
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-baseline gap-2">
+                        <span className="text-lg font-bold text-gray-900">₹{product.dailyPrice}</span>
+                        <span className="text-sm text-gray-500">/day</span>
+                      </div>
+                      <p className="text-xs text-gray-500">Deposit: ₹{product.deposit}</p>
                     </div>
-                    <p className="text-xs text-gray-500">Deposit: ₹{product.deposit}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </main>
         </div>
       </div>
     </div>

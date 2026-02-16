@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Brand {
     id: string;
@@ -57,20 +58,19 @@ export function FeaturedBrands() {
 
                 <div className="overflow-hidden" ref={emblaRef}>
                     <div className="flex -ml-4 md:-ml-8">
-                        {brands.map((brand) => (
+                        {brands.map((brand, index) => (
                             <div key={brand.id} className="flex-[0_0_auto] pl-4 md:pl-8">
                                 <Link href={`/brand/${brand.name.toLowerCase()}`} className="group flex flex-col items-center gap-3">
-                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300">
-                                        <img
+                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center p-4 shadow-sm group-hover:shadow-md group-hover:border-gray-300 transition-all duration-300 relative">
+                                        <Image
                                             src={brand.logo}
                                             alt={brand.name}
-                                            className="w-full h-full object-contain filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-                                            onError={(e) => {
-                                                // Fallback if image fails
-                                                e.currentTarget.style.display = 'none';
-                                                e.currentTarget.parentElement?.classList.add('bg-gray-100');
-                                                e.currentTarget.parentElement!.innerText = brand.name[0];
-                                            }}
+                                            fill
+                                            sizes="(max-width: 768px) 96px, 128px"
+                                            priority={index < 4}
+                                            fetchPriority={index < 2 ? "high" : "auto"}
+                                            loading={index < 4 ? "eager" : "lazy"}
+                                            className="object-contain p-4 filter grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
                                         />
                                     </div>
                                     <span className="text-xs font-semibold text-black group-hover:text-gray-900 transition-colors opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 duration-300">

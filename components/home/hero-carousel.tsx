@@ -114,6 +114,7 @@ export function HeroCarousel() {
                                 alt={slide.title}
                                 fill
                                 priority={banners.indexOf(slide) === 0}
+                                fetchPriority={banners.indexOf(slide) === 0 ? "high" : "auto"}
                                 loading={banners.indexOf(slide) === 0 ? "eager" : "lazy"}
                                 quality={90}
                                 sizes="100vw"

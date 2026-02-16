@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -9,8 +8,10 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const categoryId = searchParams.get("categoryId");
     const brand = searchParams.get("brand");
+    const category = searchParams.get("category");
 
-    const where: Prisma.ProductWhereInput = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const where: any = {
       status: "ACTIVE",
     };
 
@@ -24,6 +25,12 @@ export async function GET(request: Request) {
 
     if (brand) {
       where.brandId = brand;
+    }
+
+    if (category) {
+      where.category = {
+        slug: category,
+      };
     }
 
     const products = await prisma.product.findMany({
@@ -60,6 +67,9 @@ export async function GET(request: Request) {
       slug: product.slug,
       images: product.images as string[],
       dailyPrice: Number(product.dailyPrice),
+      deposit: Number(product.depositAmount),
+      rating: Number(product.rating),
+      reviewCount: product.reviewCount,
       category: product.category,
       vendor: product.vendor,
       brand: product.brand,

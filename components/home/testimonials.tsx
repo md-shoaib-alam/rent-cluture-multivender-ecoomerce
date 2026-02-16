@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Image from 'next/image';
 
 const testimonials = [
     {
@@ -39,11 +40,18 @@ export function Testimonials() {
                     {testimonials.map((testimonial, index) => (
                         <div key={index} className="bg-white p-8 rounded-3xl shadow-sm hover:shadow-xl transition-shadow border border-gray-100">
                             <div className="flex items-center gap-4 mb-6">
-                                <img
-                                    src={testimonial.image}
-                                    alt={testimonial.name}
-                                    className="w-14 h-14 rounded-full object-cover border-2 border-primary/20"
-                                />
+                                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary/20 relative">
+                                    <Image
+                                        src={testimonial.image}
+                                        alt={testimonial.name}
+                                        fill
+                                        sizes="56px"
+                                        priority={index < 2}
+                                        fetchPriority={index === 0 ? "high" : "auto"}
+                                        loading={index < 2 ? "eager" : "lazy"}
+                                        className="object-cover"
+                                    />
+                                </div>
                                 <div>
                                     <h4 className="font-bold text-gray-900">{testimonial.name}</h4>
                                     <p className="text-xs text-black uppercase tracking-wider">{testimonial.role}</p>

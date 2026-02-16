@@ -5,6 +5,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface DropProduct {
     id: string;
@@ -206,10 +207,15 @@ export function DropsSection() {
                                             <div className="relative aspect-[3/4] rounded-2xl overflow-hidden shadow-lg bg-white">
                                                 {/* Image Container */}
                                                 <div className="w-full h-full">
-                                                    <img
+                                                    <Image
                                                         src={product.image}
                                                         alt={product.name}
-                                                        className="w-full h-full object-cover object-top"
+                                                        fill
+                                                        sizes="(max-width: 768px) 70vw, (max-width: 1024px) 33vw, 20vw"
+                                                        priority={index < 5}
+                                                        fetchPriority={index < 2 ? "high" : "auto"}
+                                                        loading={index < 5 ? "eager" : "lazy"}
+                                                        className="object-cover object-top"
                                                     />
                                                 </div>
                                             </div>

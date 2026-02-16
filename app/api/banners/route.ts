@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -11,13 +10,11 @@ export async function GET(request: Request) {
     // Note: active parameter available for future filtering if needed
     // const active = searchParams.get("active") !== "false";
 
-    const where: Prisma.BannerWhereInput = {
-      position,
-      isActive: true,
-    };
-
     const banners = await prisma.banner.findMany({
-      where,
+      where: {
+        position,
+        isActive: true,
+      },
       orderBy: {
         sortOrder: "asc",
       },

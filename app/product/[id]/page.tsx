@@ -6,6 +6,7 @@ import { Star, Truck, Shield, Calendar, ChevronLeft, ChevronRight } from "lucide
 import { useCartStore } from "@/store/cart";
 import Link from "next/link";
 import { toast } from "sonner";
+import Image from "next/image";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -75,13 +76,30 @@ export default function ProductPage({ params }: { params: { id: string } }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Images */}
           <div>
-            <div className="aspect-[4/5] bg-white rounded-lg overflow-hidden mb-4">
-              <img src={product.images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
+            <div className="aspect-[4/5] bg-white rounded-lg overflow-hidden mb-4 relative">
+              <Image 
+                src={product.images[selectedImage]} 
+                alt={product.name} 
+                fill
+                priority
+                fetchPriority="high"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
             </div>
             <div className="flex gap-2">
               {product.images.map((img, idx) => (
-                <button key={idx} onClick={() => setSelectedImage(idx)} className={`w-20 h-24 rounded-md overflow-hidden border-2 ${selectedImage === idx ? "border-rose-500" : "border-transparent"}`}>
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                <button key={idx} onClick={() => setSelectedImage(idx)} className={`w-20 h-24 rounded-md overflow-hidden border-2 relative ${selectedImage === idx ? "border-rose-500" : "border-transparent"}`}>
+                  <Image 
+                    src={img} 
+                    alt="" 
+                    fill
+                    sizes="80px"
+                    priority={idx === 0}
+                    fetchPriority={idx === 0 ? "high" : "auto"}
+                    loading={idx === 0 ? "eager" : "lazy"}
+                    className="object-cover"
+                  />
                 </button>
               ))}
             </div>

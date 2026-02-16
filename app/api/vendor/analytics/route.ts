@@ -49,7 +49,7 @@ export async function GET(request: Request) {
     const rentals = await prisma.rental.findMany({
       where: {
         vendorId: vendor.id,
-        status: { in: ["COMPLETED", "DELIVERED", "ACTIVE"] },
+        status: { in: ["RETURNED", "DELIVERED", "ACTIVE"] },
         createdAt: { gte: startDate },
       },
       include: {

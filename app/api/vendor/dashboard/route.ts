@@ -37,7 +37,7 @@ export async function GET() {
     const rentals = await prisma.rental.findMany({
       where: {
         vendorId: vendor.id,
-        status: { in: ["COMPLETED", "DELIVERED", "ACTIVE"] },
+        status: { in: ["RETURNED", "DELIVERED", "ACTIVE"] },
       },
       select: {
         totalAmount: true,
