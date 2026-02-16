@@ -11,38 +11,43 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rentals = await prisma.rental.findMany({
-      include: {
-        customer: {
-          include: {
-            user: {
-              select: {
-                name: true,
-                email: true,
+    const { searchParams } = new URL(req.url);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+    const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
+    const skip = (page - 1) * limit;
+
+    const [rentals, totalRentals] = await Promise.all([
+      prisma.rental.findMany({
+        include: {
+          customer: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  email: true,
+                },
               },
             },
           },
-        },
-        vendor: {
-          select: {
-            businessName: true,
+          vendor: {
+            select: {
+              businessName: true,
+            },
           },
-        },
-        items: {
-          include: {
-            product: {
-              select: {
-                name: true,
-              },
+          items: {
+            select: {
+              productName: true,
             },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 50,
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: limit,
+        skip,
+      }),
+      prisma.rental.count(),
+    ]);
 
     const orders = rentals.map((rental: typeof rentals[number]) => ({
       id: rental.id,
@@ -85,6 +90,12 @@ export async function GET(req: Request) {
         totalOrders: stats._count,
         completedOrders,
         pendingOrders,
+      },
+      pagination: {
+        page,
+        limit,
+        total: totalRentals,
+        totalPages: Math.ceil(totalRentals / limit),
       },
     });
   } catch (error) {

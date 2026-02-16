@@ -11,27 +11,35 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        customer: {
-          select: {
-            rentals: {
-              select: {
-                id: true,
+    const { searchParams } = new URL(req.url);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+    const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          customer: {
+            select: {
+              _count: {
+                select: { rentals: true },
               },
             },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: limit,
+        skip,
+      }),
+      prisma.user.count(),
+    ]);
 
     return NextResponse.json({
       users: users.map((user: typeof users[number]) => ({
@@ -41,9 +49,15 @@ export async function GET(req: Request) {
         role: user.role,
         createdAt: user.createdAt,
         _count: {
-          orders: user.customer?.rentals.length || 0,
+          orders: user.customer?._count.rentals || 0,
         },
       })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("Error fetching users:", error);

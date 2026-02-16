@@ -72,11 +72,8 @@ export async function POST(request: Request) {
       },
     });
 
-    // Update user role to VENDOR (pending approval)
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { role: "VENDOR" },
-    });
+    // NOTE: User role stays as USER until admin approves the vendor application.
+    // The role will be updated to VENDOR in the admin approve route.
 
     return NextResponse.json(
       { message: "Vendor application submitted", vendorId: vendor.id },

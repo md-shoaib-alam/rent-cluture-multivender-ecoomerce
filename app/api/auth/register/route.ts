@@ -14,6 +14,31 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password must be at least 8 characters" },
+        { status: 400 }
+      );
+    }
+
+    // Validate name length
+    if (name.trim().length < 2 || name.trim().length > 100) {
+      return NextResponse.json(
+        { error: "Name must be between 2 and 100 characters" },
+        { status: 400 }
+      );
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -29,28 +54,30 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create user with default USER role
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role: "USER", // Default role is USER
-      },
-    });
+    // Create user, customer profile, and wallet atomically
+    const user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          name: name.trim(),
+          email: email.toLowerCase().trim(),
+          password: hashedPassword,
+          role: "USER",
+        },
+      });
 
-    // Create customer profile
-    await prisma.customer.create({
-      data: {
-        userId: user.id,
-      },
-    });
+      await tx.customer.create({
+        data: {
+          userId: newUser.id,
+        },
+      });
 
-    // Create wallet for user
-    await prisma.wallet.create({
-      data: {
-        userId: user.id,
-      },
+      await tx.wallet.create({
+        data: {
+          userId: newUser.id,
+        },
+      });
+
+      return newUser;
     });
 
     return NextResponse.json(

@@ -24,6 +24,8 @@ interface Product {
   slug: string;
   images: string[];
   dailyPrice: number;
+  rating: number;
+  reviewCount: number;
   category: {
     name: string;
   };
@@ -142,9 +144,9 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-transparent flex flex-col justify-center p-8">
                 <h4 className="text-4xl font-black text-white mb-1">50% <span className="text-xl">OFF</span></h4>
                 <p className="text-white font-bold mb-4">Sherwanis & Suits</p>
-                <button className="bg-secondary text-white font-bold px-5 py-2 rounded-full w-fit hover:bg-secondary/90 transition-colors">
+                <Link href="/categories" className="bg-secondary text-white font-bold px-5 py-2 rounded-full w-fit hover:bg-secondary/90 transition-colors inline-block">
                   Check Now
-                </button>
+                </Link>
               </div>
             </article>
             {/* Promo Card 3 */}
@@ -159,9 +161,9 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/80 to-transparent flex flex-col justify-center p-8">
                 <h4 className="text-white text-2xl font-bold mb-2">Weekend Specials</h4>
                 <p className="text-white/90 text-sm mb-4">Rent for 2 days, get 1 day free</p>
-                <button className="bg-white text-orange-600 font-bold px-5 py-2 rounded-full w-fit hover:bg-gray-50 transition-colors">
+                <Link href="/categories" className="bg-white text-orange-600 font-bold px-5 py-2 rounded-full w-fit hover:bg-gray-50 transition-colors inline-block">
                   Shop Now
-                </button>
+                </Link>
               </div>
             </article>
           </div>
@@ -234,9 +236,11 @@ export default function HomePage() {
                   <div key={product.id} className="flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_25%] pl-6 min-w-0">
                     <Link href={`/product/${product.id}`} className="group bg-white rounded-[2rem] p-3 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-1 block h-full" aria-label={`View ${product.name}`}>
                       <div className="relative aspect-[3/4] rounded-[1.5rem] overflow-hidden mb-3 bg-gray-100">
-                        <span className="absolute top-3 left-3 bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider z-10 shadow-md">
-                          20% OFF
-                        </span>
+                        {product.rating >= 4 && (
+                          <span className="absolute top-3 left-3 bg-orange-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider z-10 shadow-md">
+                            Top Rated
+                          </span>
+                        )}
 
                         <Image
                           src={product.images[0]}
@@ -253,9 +257,9 @@ export default function HomePage() {
                       <div className="space-y-1 px-2 pb-2">
                         <div className="flex justify-between items-start">
                           <p className="text-[10px] font-bold text-black uppercase tracking-widest line-clamp-1">{product.category.name}</p>
-                          <div className="flex items-center text-amber-400 gap-1 text-xs font-bold bg-amber-50 px-1.5 py-0.5 rounded-md" aria-label="Rating: 4.5 out of 5">
+                          <div className="flex items-center text-amber-400 gap-1 text-xs font-bold bg-amber-50 px-1.5 py-0.5 rounded-md" aria-label={`Rating: ${product.rating} out of 5`}>
                             <span className="material-symbols-outlined text-sm" aria-hidden="true">star</span>
-                            <span className="text-amber-700 text-[10px]">4.5</span>
+                            <span className="text-amber-700 text-[10px]">{product.rating > 0 ? product.rating.toFixed(1) : "New"}</span>
                           </div>
                         </div>
 

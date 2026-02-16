@@ -37,8 +37,8 @@ export default function SignupPage() {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -167,11 +167,11 @@ export default function SignupPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  minLength={6}
+                  minLength={8}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-1 block w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-gray-900 placeholder-gray-400"
-                  placeholder="Min 6 characters"
+                  placeholder="Min 8 characters"
                 />
                 <button
                   type="button"
@@ -196,7 +196,7 @@ export default function SignupPage() {
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
                   required
-                  minLength={6}
+                  minLength={8}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="mt-1 block w-full px-3 py-2.5 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-gray-900 placeholder-gray-400"

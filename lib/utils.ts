@@ -5,9 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPrice(amount: number | string, currency = "USD") {
+export function formatPrice(amount: number | string, currency = "INR") {
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,
   }).format(num);
@@ -15,7 +15,7 @@ export function formatPrice(amount: number | string, currency = "USD") {
 
 export function formatDate(date: Date | string) {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("en-IN", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -24,7 +24,15 @@ export function formatDate(date: Date | string) {
 
 export function generateOrderNumber() {
   const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+  // Use crypto for secure random generation when available
+  let random: string;
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    const arr = new Uint8Array(4);
+    crypto.getRandomValues(arr);
+    random = Array.from(arr, b => b.toString(16).padStart(2, "0")).join("").substring(0, 6).toUpperCase();
+  } else {
+    random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
   return `RS-${timestamp}-${random}`;
 }
 

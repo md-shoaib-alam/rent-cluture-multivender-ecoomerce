@@ -192,7 +192,7 @@ model Address {
   city       String
   state      String
   postalCode String
-  country    String   @default("US")
+  country    String   @default("India")
   phone      String?
   isDefault  Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -208,7 +208,7 @@ model Wallet {
   userId          String   @unique
   balance         Decimal  @default(0) @db.Decimal(10, 2)
   pendingBalance  Decimal  @default(0) @db.Decimal(10, 2)
-  currency        String   @default("USD")
+  currency        String   @default("INR")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -530,7 +530,7 @@ model Payment {
   customerId      String
   
   amount          Decimal       @db.Decimal(10, 2)
-  currency        String        @default("USD")
+  currency        String        @default("INR")
   method          PaymentMethod
   status          PaymentStatus @default(PENDING)
   
@@ -590,7 +590,7 @@ model Payout {
   id            String   @id @default(cuid())
   vendorId      String
   amount        Decimal  @db.Decimal(10, 2)
-  currency      String   @default("USD")
+  currency      String   @default("INR")
   status        String   @default("PENDING")
   method        String
   

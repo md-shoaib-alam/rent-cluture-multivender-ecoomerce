@@ -115,8 +115,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Calculate commission (10% platform fee)
-    const commission = amount * 0.1;
+    // Use vendor's commission rate from DB
+    const commissionRate = Number(vendor.commissionRate) / 100;
+    const commission = Math.round(amount * commissionRate);
     const netAmount = amount - commission;
 
     const payout = await prisma.payout.create({

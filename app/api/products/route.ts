@@ -5,7 +5,9 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const featured = searchParams.get("featured") === "true";
-    const limit = parseInt(searchParams.get("limit") || "20");
+    const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
+    const page = Math.max(parseInt(searchParams.get("page") || "1"), 1);
+    const skip = (page - 1) * limit;
     const categoryId = searchParams.get("categoryId");
     const brand = searchParams.get("brand");
     const category = searchParams.get("category");
@@ -33,32 +35,36 @@ export async function GET(request: Request) {
       };
     }
 
-    const products = await prisma.product.findMany({
-      where,
-      take: limit,
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
-        category: {
-          select: {
-            name: true,
-            slug: true,
+    const [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        take: limit,
+        skip,
+        orderBy: {
+          createdAt: "desc",
+        },
+        include: {
+          category: {
+            select: {
+              name: true,
+              slug: true,
+            },
+          },
+          vendor: {
+            select: {
+              businessName: true,
+            },
+          },
+          brand: {
+            select: {
+              name: true,
+              slug: true,
+            },
           },
         },
-        vendor: {
-          select: {
-            businessName: true,
-          },
-        },
-        brand: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-      },
-    });
+      }),
+      prisma.product.count({ where }),
+    ]);
 
     // Transform products to match frontend interface
     const transformedProducts = products.map((product: typeof products[number]) => ({
@@ -77,6 +83,12 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       products: transformedProducts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error) {
     console.error("Error fetching products:", error);

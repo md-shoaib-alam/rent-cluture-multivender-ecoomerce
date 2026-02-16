@@ -1,41 +1,85 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, Truck, Shield, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Truck, Shield, Calendar, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import Link from "next/link";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+interface ProductData {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  images: string[];
+  dailyPrice: number;
+  weeklyPrice: number | null;
+  depositAmount: number;
+  rating: number;
+  reviewCount: number;
+  condition: string;
+  vendor: { id: string; businessName: string; businessSlug: string };
+  brand: { name: string } | null;
+  category: { name: string; slug: string } | null;
+  variants: { id: string; size: string; color: string | null; inventory: number; isAvailable: boolean }[];
+}
+
+export default function ProductPage() {
+  const params = useParams<{ id: string }>();
+  const [product, setProduct] = useState<ProductData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [rentalDays, setRentalDays] = useState(3);
   const addItem = useCartStore((state) => state.addItem);
 
-  const product = {
-    id: params.id,
-    name: "Elegant Evening Gown",
-    vendor: "Fashion Boutique",
-    vendorSlug: "fashion-boutique",
-    description: "Stunning evening gown perfect for formal events, galas, and special occasions. Features a flowing silhouette with intricate beadwork and a dramatic train.",
-    dailyPrice: 89,
-    weeklyPrice: 450,
-    deposit: 150,
-    rating: 4.8,
-    reviewCount: 24,
-    condition: "Like New",
-    brand: "Designer Collection",
-    images: [
-      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&h=800&fit=crop",
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&h=800&fit=crop",
-    ],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: ["Black", "Navy", "Burgundy"],
-    selectedColor: "Black",
-  };
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const res = await fetch(`/api/products/${params.id}`);
+        if (!res.ok) {
+          throw new Error("Product not found");
+        }
+        const data = await res.json();
+        setProduct(data.product);
+      } catch {
+        setError("Product not found or unavailable");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProduct();
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-rose-500" />
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-4">
+        <p className="text-gray-600 text-lg">{error || "Product not found"}</p>
+        <Link href="/categories" className="text-rose-600 hover:underline">
+          ← Back to Categories
+        </Link>
+      </div>
+    );
+  }
+
+  const sizes = product.variants.length > 0
+    ? [...new Set(product.variants.filter(v => v.isAvailable).map(v => v.size))]
+    : [];
+  const colors = product.variants.length > 0
+    ? [...new Set(product.variants.filter(v => v.isAvailable && v.color).map(v => v.color!))]
+    : [];
 
   const total = product.dailyPrice * rentalDays;
 
@@ -56,9 +100,9 @@ export default function ProductPage({ params }: { params: { id: string } }) {
       variantSize: selectedSize,
       dailyPrice: product.dailyPrice,
       weeklyPrice: product.weeklyPrice || undefined,
-      depositAmount: product.deposit,
-      vendorId: "1",
-      vendorName: product.vendor,
+      depositAmount: product.depositAmount,
+      vendorId: product.vendor.id,
+      vendorName: product.vendor.businessName,
       rentalStart: startDate,
       rentalEnd: endDate,
     });
@@ -108,8 +152,8 @@ export default function ProductPage({ params }: { params: { id: string } }) {
           {/* Details */}
           <div>
             <div className="mb-2">
-              <Link href={`/vendor/${product.vendorSlug}`} className="text-sm text-rose-600 hover:underline">
-                {product.vendor}
+              <Link href={`/vendor/${product.vendor.businessSlug}`} className="text-sm text-rose-600 hover:underline">
+                {product.vendor.businessName}
               </Link>
             </div>
             <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
@@ -128,23 +172,34 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 <span className="text-3xl font-bold text-gray-900">₹{product.dailyPrice}</span>
                 <span className="text-gray-500">/day</span>
               </div>
-              <p className="text-sm text-gray-500 mt-1">Refundable deposit: ₹{product.deposit}</p>
+              <p className="text-sm text-gray-500 mt-1">Refundable deposit: ₹{product.depositAmount}</p>
             </div>
 
-            <div className="mt-6">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">Select Size</h3>
-              <div className="flex gap-2">
-                {product.sizes.map((size) => (
-                  <button key={size} onClick={() => setSelectedSize(size)} className={`px-4 py-2 border rounded-md font-medium ${selectedSize === size ? "border-rose-500 bg-rose-50 text-rose-700" : "border-gray-300 hover:border-gray-400"}`}>
-                    {size}
-                  </button>
-                ))}
+            {sizes.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Select Size</h3>
+                <div className="flex gap-2">
+                  {sizes.map((size) => (
+                    <button key={size} onClick={() => setSelectedSize(size)} className={`px-4 py-2 border rounded-md font-medium ${selectedSize === size ? "border-rose-500 bg-rose-50 text-rose-700" : "border-gray-300 hover:border-gray-400"}`}>
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="mt-6">
-              <h3 className="text-sm font-medium text-gray-900 mb-2">Color: {product.selectedColor}</h3>
-            </div>
+            {colors.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-900 mb-2">Available Colors</h3>
+                <div className="flex gap-2">
+                  {colors.map((color) => (
+                    <span key={color} className="px-3 py-1 border border-gray-300 rounded-md text-sm">
+                      {color}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-6">
               <h3 className="text-sm font-medium text-gray-900 mb-2">Rental Duration</h3>
@@ -196,7 +251,7 @@ export default function ProductPage({ params }: { params: { id: string } }) {
                 </div>
                 <div>
                   <dt className="text-sm text-gray-500">Brand</dt>
-                  <dd className="text-sm font-medium text-gray-900">{product.brand}</dd>
+                  <dd className="text-sm font-medium text-gray-900">{product.brand?.name || "N/A"}</dd>
                 </div>
               </dl>
             </div>

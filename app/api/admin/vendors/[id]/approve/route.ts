@@ -15,22 +15,29 @@ export async function POST(
 
     const { id } = await params;
 
-    // Update vendor status to APPROVED
-    const vendor = await prisma.vendor.update({
-      where: { id },
-      data: { 
-        status: "APPROVED",
-        verifiedAt: new Date(),
-        isVerified: true,
-      },
+    // Update vendor status and user role atomically
+    const vendor = await prisma.$transaction(async (tx) => {
+      const updatedVendor = await tx.vendor.update({
+        where: { id },
+        data: {
+          status: "APPROVED",
+          verifiedAt: new Date(),
+          isVerified: true,
+        },
+      });
+
+      // Now assign the VENDOR role to the user
+      await tx.user.update({
+        where: { id: updatedVendor.userId },
+        data: { role: "VENDOR" },
+      });
+
+      return updatedVendor;
     });
 
-    // The user role is already VENDOR from when they applied
-    // Now they're an approved vendor
-
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "Vendor approved successfully",
-      vendor 
+      vendor
     });
   } catch (error) {
     console.error("Error approving vendor:", error);

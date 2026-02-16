@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import crypto from "crypto";
 import prisma from "@/lib/prisma";
 
 const resend = new Resend(process.env.RESEND_API_KEY || "");
@@ -19,16 +20,31 @@ export async function POST(req: Request) {
 
     if (!user) {
       // Don't reveal if user exists or not
-      return NextResponse.json({ 
-        message: "If an account exists with this email, you will receive a password reset link." 
+      return NextResponse.json({
+        message: "If an account exists with this email, you will receive a password reset link."
       });
     }
 
-    // Generate a simple reset token (in production, use proper crypto)
-    const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    // Generate a cryptographically secure reset token
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
     const resetExpires = new Date(Date.now() + 3600000); // 1 hour
 
-    // Send password reset email
+    // Delete any existing reset tokens for this email
+    await prisma.verificationToken.deleteMany({
+      where: { identifier: `password-reset:${email}` },
+    });
+
+    // Store the hashed token in the database
+    await prisma.verificationToken.create({
+      data: {
+        identifier: `password-reset:${email}`,
+        token: hashedToken,
+        expires: resetExpires,
+      },
+    });
+
+    // Send password reset email with the unhashed token
     const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/reset-password?token=${resetToken}&email=${encodeURIComponent(email)}`;
 
     const { error } = await resend.emails.send({
