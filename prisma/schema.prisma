@@ -341,6 +341,7 @@ model Product {
   depositAmount   Decimal       @default(50) @db.Decimal(10, 2)
   
   brandId        String?
+  gender          String       @default("NONE")
   condition       String       @default("new")
   careInstructions String?    @db.Text
   

@@ -243,7 +243,7 @@ export default function VendorProductsPage() {
 
                 <div className="mt-auto grid grid-cols-2 gap-2">
                   <Link
-                    href={`/product/${product.slug}`}
+                    href={`/product/${product.id}`}
                     className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
                   >
                     <Eye className="w-3.5 h-3.5" />

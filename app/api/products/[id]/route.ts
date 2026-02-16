@@ -8,39 +8,49 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const product = await prisma.product.findUnique({
-      where: { id },
-      include: {
-        vendor: {
-          select: {
-            id: true,
-            businessName: true,
-            businessSlug: true,
-          },
-        },
-        brand: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-        category: {
-          select: {
-            name: true,
-            slug: true,
-          },
-        },
-        variants: {
-          select: {
-            id: true,
-            size: true,
-            color: true,
-            inventory: true,
-            isAvailable: true,
-          },
+    const includeOptions = {
+      vendor: {
+        select: {
+          id: true,
+          businessName: true,
+          businessSlug: true,
         },
       },
+      brand: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      variants: {
+        select: {
+          id: true,
+          size: true,
+          color: true,
+          inventory: true,
+          isAvailable: true,
+        },
+      },
+    };
+
+    // Try to find by ID first, then by slug
+    let product = await prisma.product.findUnique({
+      where: { id },
+      include: includeOptions,
     });
+
+    if (!product) {
+      product = await prisma.product.findUnique({
+        where: { slug: id },
+        include: includeOptions,
+      });
+    }
 
     if (!product || product.status !== "ACTIVE") {
       return NextResponse.json(
@@ -51,7 +61,7 @@ export async function GET(
 
     // Increment view count (fire and forget)
     prisma.product.update({
-      where: { id },
+      where: { id: product.id },
       data: { viewCount: { increment: 1 } },
     }).catch(() => {});
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { IndianRupee } from "lucide-react";
@@ -16,7 +16,21 @@ interface Brand {
     name: string;
 }
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
+interface VariantInput {
+    size: string;
+    color: string;
+    inventory: number;
+}
+
+const SIZE_PRESETS: Record<string, string[]> = {
+    clothing: ["XS", "S", "M", "L", "XL", "XXL", "3XL"],
+    shoes: ["5", "6", "7", "8", "9", "10", "11", "12", "13"],
+    jeans: ["26", "28", "30", "32", "34", "36", "38", "40", "42"],
+    onesize: ["Free Size"],
+};
+
+export default function EditProductPage() {
+    const params = useParams<{ id: string }>();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
@@ -26,6 +40,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         description: "",
         categoryId: "",
         brandId: "",
+        gender: "",
         dailyPrice: "",
         weeklyPrice: "",
         depositAmount: "",
@@ -33,7 +48,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         careInstructions: "",
         images: [] as string[],
     });
-    const [imageUrls, setImageUrls] = useState<string>("");
+    const [imageUrls, setImageUrls] = useState<string[]>([""]);
+    const [variants, setVariants] = useState<VariantInput[]>([]);
+    const [sizeType, setSizeType] = useState("clothing");
     const [fetching, setFetching] = useState(true);
 
     useEffect(() => {
@@ -79,6 +96,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                     description: p.description || "",
                     categoryId: p.categoryId || "",
                     brandId: p.brandId || "",
+                    gender: p.gender || "",
                     dailyPrice: p.dailyPrice?.toString() || "",
                     weeklyPrice: p.weeklyPrice?.toString() || "",
                     depositAmount: p.depositAmount?.toString() || "",
@@ -86,7 +104,15 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                     careInstructions: p.careInstructions || "",
                     images: p.images || [],
                 });
-                setImageUrls(p.images ? p.images.join("\n") : "");
+                const imgs = Array.isArray(p.images) && p.images.length > 0 ? p.images : [""];
+                setImageUrls(imgs);
+                if (p.variants && p.variants.length > 0) {
+                    setVariants(p.variants.map((v: { size: string; color?: string; inventory: number }) => ({
+                        size: v.size,
+                        color: v.color || "",
+                        inventory: v.inventory || 1,
+                    })));
+                }
             } else {
                 toast.error("Failed to load product");
                 router.push("/dashboard/vendor/products");
@@ -104,9 +130,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         setLoading(true);
 
         try {
-            // Parse image URLs
             const images = imageUrls
-                .split("\n")
                 .map((url) => url.trim())
                 .filter((url) => url.length > 0);
 
@@ -119,6 +143,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                     dailyPrice: parseFloat(formData.dailyPrice),
                     weeklyPrice: formData.weeklyPrice ? parseFloat(formData.weeklyPrice) : null,
                     depositAmount: parseFloat(formData.depositAmount),
+                    variants: variants.filter((v) => v.size),
                 }),
             });
 
@@ -225,6 +250,20 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                                     </select>
                                 </div>
                             </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Gender <span className="text-red-500">*</span></label>
+                                <select
+                                    required
+                                    value={formData.gender}
+                                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 bg-gray-50/50 transition-all font-medium"
+                                >
+                                    <option value="">Select gender</option>
+                                    <option value="MALE">Male</option>
+                                    <option value="FEMALE">Female</option>
+                                    <option value="NONE">None</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -327,25 +366,91 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                         </div>
                     </div>
 
+                    {/* Size & Inventory */}
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900 mb-6 pb-2 border-b border-gray-100">Size &amp; Inventory</h2>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Size Type</label>
+                                <select
+                                    value={sizeType}
+                                    onChange={(e) => setSizeType(e.target.value)}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 bg-gray-50/50 transition-all font-medium"
+                                >
+                                    <option value="clothing">Clothing (XS, S, M, L, XL...)</option>
+                                    <option value="shoes">Shoes (5, 6, 7, 8...)</option>
+                                    <option value="jeans">Jeans (26, 28, 30, 32...)</option>
+                                    <option value="onesize">One Size</option>
+                                </select>
+                            </div>
+                            {variants.map((variant, index) => (
+                                <div key={index} className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                                    <div className="flex-1">
+                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Size</label>
+                                        <select
+                                            value={variant.size}
+                                            onChange={(e) => { const u = [...variants]; u[index].size = e.target.value; setVariants(u); }}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 bg-white font-medium"
+                                        >
+                                            <option value="">Select size</option>
+                                            {SIZE_PRESETS[sizeType].map((s) => (<option key={s} value={s}>{s}</option>))}
+                                        </select>
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Color (Optional)</label>
+                                        <input type="text" value={variant.color} onChange={(e) => { const u = [...variants]; u[index].color = e.target.value; setVariants(u); }}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 bg-white font-medium" placeholder="e.g., Black" />
+                                    </div>
+                                    <div className="w-24">
+                                        <label className="block text-xs font-semibold text-gray-600 mb-1">Qty</label>
+                                        <input type="number" min="0" value={variant.inventory} onChange={(e) => { const u = [...variants]; u[index].inventory = parseInt(e.target.value) || 0; setVariants(u); }}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 bg-white font-medium" />
+                                    </div>
+                                    <button type="button" onClick={() => setVariants(variants.filter((_, i) => i !== index))}
+                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg mt-5">
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                    </button>
+                                </div>
+                            ))}
+                            <button type="button" onClick={() => setVariants([...variants, { size: "", color: "", inventory: 1 }])}
+                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-rose-600 border border-dashed border-rose-300 rounded-lg hover:bg-rose-50 transition w-fit">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                Add Size Variant
+                            </button>
+                        </div>
+                    </div>
+
                     {/* Images */}
                     <div>
                         <h2 className="text-xl font-bold text-gray-900 mb-6 pb-2 border-b border-gray-100">Images</h2>
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Image URLs (one per line)
-                            </label>
-                            <textarea
-                                rows={4}
-                                value={imageUrls}
-                                onChange={(e) => setImageUrls(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 placeholder:text-gray-500 bg-white transition-all font-medium font-mono text-sm"
-                                placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"
-                            />
-                            <p className="mt-2 text-sm text-gray-500 flex items-center gap-1">
-                                <span className="material-symbols-outlined text-base">info</span>
-                                Enter image URLs, one per line. First image will be the main product image.
-                            </p>
+                        <label className="block text-sm font-semibold text-gray-700 mb-3">Image URLs</label>
+                        <div className="flex flex-col gap-3">
+                            {imageUrls.map((url, index) => (
+                                <div key={index} className="flex items-center gap-2">
+                                    <div className="flex-1">
+                                        <input type="url" value={url}
+                                            onChange={(e) => { const u = [...imageUrls]; u[index] = e.target.value; setImageUrls(u); }}
+                                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-rose-500 text-gray-900 placeholder:text-gray-500 bg-white transition-all font-medium font-mono text-sm"
+                                            placeholder={index === 0 ? "Main image URL" : `Image URL #${index + 1}`} />
+                                    </div>
+                                    {imageUrls.length > 1 && (
+                                        <button type="button" onClick={() => setImageUrls(imageUrls.filter((_, i) => i !== index))}
+                                            className="p-2.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition" title="Remove image">
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                            <button type="button" onClick={() => setImageUrls([...imageUrls, ""])}
+                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-rose-600 border border-dashed border-rose-300 rounded-lg hover:bg-rose-50 transition w-fit">
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                                Add Another Image
+                            </button>
                         </div>
+                        <p className="mt-3 text-sm text-gray-500 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-base">info</span>
+                            First image will be the main product image.
+                        </p>
                     </div>
 
                     {/* Submit */}

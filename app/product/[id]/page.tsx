@@ -84,7 +84,7 @@ export default function ProductPage() {
   const total = product.dailyPrice * rentalDays;
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    if (sizes.length > 0 && !selectedSize) {
       toast.error("Please select a size");
       return;
     }
@@ -97,7 +97,7 @@ export default function ProductPage() {
       productId: product.id,
       productName: product.name,
       productImage: product.images[0],
-      variantSize: selectedSize,
+      variantSize: selectedSize || "One Size",
       dailyPrice: product.dailyPrice,
       weeklyPrice: product.weeklyPrice || undefined,
       depositAmount: product.depositAmount,

@@ -79,9 +79,34 @@ export async function PATCH(
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    const product = await prisma.product.update({
-      where: { id },
-      data: body,
+    // Separate variants from the rest of the body
+    const { variants, ...productData } = body;
+
+    const product = await prisma.$transaction(async (tx) => {
+      await tx.product.update({
+        where: { id },
+        data: productData,
+      });
+
+      // If variants were sent, replace all existing variants
+      if (variants !== undefined) {
+        await tx.productVariant.deleteMany({ where: { productId: id } });
+        if (Array.isArray(variants) && variants.length > 0) {
+          await tx.productVariant.createMany({
+            data: variants.map((v: { size: string; color?: string; inventory: number }) => ({
+              productId: id,
+              size: v.size,
+              color: v.color || null,
+              inventory: v.inventory || 1,
+            })),
+          });
+        }
+      }
+
+      return tx.product.findUnique({
+        where: { id },
+        include: { category: true, brand: true, variants: true },
+      });
     });
 
     return NextResponse.json({ product });
