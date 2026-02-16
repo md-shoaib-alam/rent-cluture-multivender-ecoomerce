@@ -2,6 +2,9 @@
   "name": "rent-square",
   "version": "0.1.0",
   "private": true,
+  "prisma": {
+    "seed": "bun run prisma/seed.ts"
+  },
   "scripts": {
     "dev": "bun --bun next dev",
     "build": "prisma generate && bun --bun next build",
