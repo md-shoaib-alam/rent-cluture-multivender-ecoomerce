@@ -31,7 +31,7 @@ export async function GET() {
       take: 10,
     });
 
-    const transformedDisputes = disputes.map((dispute) => ({
+    const transformedDisputes = disputes.map((dispute: typeof disputes[number]) => ({
       id: dispute.id,
       type: dispute.type,
       status: dispute.status,
