@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       },
     });
 
-    const totalEarnings = rentals.reduce((sum, rental) => {
+    const totalEarnings = rentals.reduce((sum: number, rental: typeof rentals[number]) => {
       return sum + (Number(rental.totalAmount) - Number(rental.platformFee));
     }, 0);
 
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       select: { amount: true },
     });
 
-    const pendingAmount = pendingPayouts.reduce((sum, p) => sum + Number(p.amount), 0);
+    const pendingAmount = pendingPayouts.reduce((sum: number, p: typeof pendingPayouts[number]) => sum + Number(p.amount), 0);
     const availableBalance = totalEarnings - pendingAmount;
 
     // Check for insufficient funds

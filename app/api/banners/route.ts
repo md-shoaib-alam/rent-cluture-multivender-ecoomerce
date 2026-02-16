@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     });
 
     // Transform banners to match frontend interface
-    const transformedBanners = banners.map((banner) => ({
+    const transformedBanners = banners.map((banner: typeof banners[number]) => ({
       id: banner.id,
       title: banner.title,
       subtitle: banner.subtitle || "",

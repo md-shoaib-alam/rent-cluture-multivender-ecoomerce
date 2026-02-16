@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     });
 
     // Transform products to match frontend interface
-    const transformedProducts = products.map((product) => ({
+    const transformedProducts = products.map((product: typeof products[number]) => ({
       id: product.id,
       name: product.name,
       slug: product.slug,

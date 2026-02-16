@@ -44,7 +44,7 @@ export async function GET(req: Request) {
       take: 50,
     });
 
-    const orders = rentals.map(rental => ({
+    const orders = rentals.map((rental: typeof rentals[number]) => ({
       id: rental.id,
       startDate: rental.rentalStartDate,
       endDate: rental.rentalEndDate,

@@ -33,15 +33,15 @@ export async function GET(request: Request) {
     });
 
     // Calculate earnings
-    const totalEarnings = rentals.reduce((sum, rental) => {
+    const totalEarnings = rentals.reduce((sum: number, rental: typeof rentals[number]) => {
       const rentalTotal = Number(rental.totalAmount);
       const platformFee = Number(rental.platformFee);
       return sum + (rentalTotal - platformFee);
     }, 0);
 
     const pendingPayouts = rentals
-      .filter((r) => r.status === "ACTIVE" || r.status === "DELIVERED")
-      .reduce((sum, rental) => {
+      .filter((r: typeof rentals[number]) => r.status === "ACTIVE" || r.status === "DELIVERED")
+      .reduce((sum: number, rental: typeof rentals[number]) => {
         const rentalTotal = Number(rental.totalAmount);
         const platformFee = Number(rental.platformFee);
         return sum + (rentalTotal - platformFee);

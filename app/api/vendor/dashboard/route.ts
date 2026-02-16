@@ -45,7 +45,7 @@ export async function GET() {
       },
     });
 
-    const totalEarnings = rentals.reduce((sum, rental) => {
+    const totalEarnings = rentals.reduce((sum: number, rental: typeof rentals[number]) => {
       return sum + (Number(rental.totalAmount) - Number(rental.platformFee));
     }, 0);
 
@@ -71,7 +71,7 @@ export async function GET() {
       take: 5,
     });
 
-    const formattedOrders = recentOrders.map((order) => ({
+    const formattedOrders = recentOrders.map((order: typeof recentOrders[number]) => ({
       id: order.id,
       productName: order.items[0]?.productName || "Unknown Product",
       customerName: order.customer.user.name || "Unknown Customer",

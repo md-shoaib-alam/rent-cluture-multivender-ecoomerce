@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     });
 
     // Transform categories to match frontend interface
-    const transformedCategories = categories.map((category) => ({
+    const transformedCategories = categories.map((category: typeof categories[number]) => ({
       id: category.id,
       name: category.name,
       slug: category.slug,

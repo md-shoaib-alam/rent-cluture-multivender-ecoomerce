@@ -38,11 +38,11 @@ export async function GET(request: Request) {
       },
     });
 
-    const totalViews = products.reduce((sum, p) => sum + p.viewCount, 0);
-    const totalRentals = products.reduce((sum, p) => sum + p.rentalCount, 0);
+    const totalViews = products.reduce((sum: number, p: typeof products[number]) => sum + p.viewCount, 0);
+    const totalRentals = products.reduce((sum: number, p: typeof products[number]) => sum + p.rentalCount, 0);
     const averageRating =
       products.length > 0
-        ? products.reduce((sum, p) => sum + Number(p.rating), 0) / products.length
+        ? products.reduce((sum: number, p: typeof products[number]) => sum + Number(p.rating), 0) / products.length
         : 0;
 
     // Get revenue from completed rentals
@@ -57,17 +57,17 @@ export async function GET(request: Request) {
       },
     });
 
-    const totalRevenue = rentals.reduce((sum, rental) => {
+    const totalRevenue = rentals.reduce((sum: number, rental: typeof rentals[number]) => {
       return sum + Number(rental.totalAmount);
     }, 0);
 
     // Top products by revenue
     const productRevenue: Record<string, { name: string; revenue: number; views: number; rentals: number; rating: number }> = {};
     
-    rentals.forEach((rental) => {
-      rental.items.forEach((item) => {
+    rentals.forEach((rental: typeof rentals[number]) => {
+      rental.items.forEach((item: typeof rental.items[number]) => {
         if (!productRevenue[item.productId]) {
-          const product = products.find((p) => p.id === item.productId);
+          const product = products.find((p: typeof products[number]) => p.id === item.productId);
           productRevenue[item.productId] = {
             name: item.productName,
             revenue: 0,

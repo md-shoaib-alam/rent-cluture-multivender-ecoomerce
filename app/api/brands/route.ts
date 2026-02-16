@@ -29,7 +29,7 @@ export async function GET(request: Request) {
     });
 
     // Transform brands to match frontend interface
-    const transformedBrands = brands.map((brand) => ({
+    const transformedBrands = brands.map((brand: typeof brands[number]) => ({
       id: brand.id,
       name: brand.name,
       logo: brand.logo || "",
