@@ -46,7 +46,7 @@ export async function GET(req: Request) {
       take: 50,
     });
 
-    const transactions = rentals.map(rental => ({
+    const transactions = rentals.map((rental: typeof rentals[number]) => ({
       id: rental.id,
       amount: Number(rental.totalAmount),
       status: rental.payment?.status || "PENDING",
