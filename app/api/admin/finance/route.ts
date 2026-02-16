@@ -69,16 +69,16 @@ export async function GET(req: Request) {
 
     // Calculate escrow stats
     const inEscrow = rentals
-      .filter(r => r.status !== "RETURNED" && r.payment?.status === "COMPLETED")
-      .reduce((sum, r) => sum + Number(r.totalAmount), 0);
+      .filter((r: typeof rentals[number]) => r.status !== "RETURNED" && r.payment?.status === "COMPLETED")
+      .reduce((sum, r: typeof rentals[number]) => sum + Number(r.totalAmount), 0);
 
     const released = rentals
-      .filter(r => r.status === "RETURNED" && r.payment?.status === "COMPLETED")
-      .reduce((sum, r) => sum + Number(r.totalAmount), 0);
+      .filter((r: typeof rentals[number]) => r.status === "RETURNED" && r.payment?.status === "COMPLETED")
+      .reduce((sum, r: typeof rentals[number]) => sum + Number(r.totalAmount), 0);
 
     const pendingRelease = rentals
-      .filter(r => r.status === "RETURNED" && (!r.payment || r.payment.status !== "COMPLETED"))
-      .reduce((sum, r) => sum + Number(r.totalAmount), 0);
+      .filter((r: typeof rentals[number]) => r.status === "RETURNED" && (!r.payment || r.payment.status !== "COMPLETED"))
+      .reduce((sum, r: typeof rentals[number]) => sum + Number(r.totalAmount), 0);
 
     return NextResponse.json({
       transactions,
