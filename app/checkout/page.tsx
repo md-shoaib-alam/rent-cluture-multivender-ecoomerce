@@ -118,7 +118,14 @@ export default function CheckoutPage() {
         clearCart();
         router.push("/checkout/success");
       } else {
-        alert("Some orders failed. Please try again.");
+        // Get error details from failed requests
+        for (const res of results) {
+          if (!res.ok) {
+            const errorData = await res.json();
+            alert(`Order failed: ${errorData.error || "Unknown error"}`);
+            break;
+          }
+        }
       }
     } catch (error) {
       console.error("Error placing order:", error);

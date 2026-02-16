@@ -34,7 +34,7 @@ export async function GET(request: Request) {
         customer: {
           include: {
             user: {
-              select: { name: true, email: true },
+              select: { name: true, email: true, image: true },
             },
           },
         },
@@ -50,7 +50,46 @@ export async function GET(request: Request) {
       orderBy: { createdAt: "desc" },
     });
 
-    return NextResponse.json({ orders });
+    // Transform to match the expected format
+    const transformedOrders = orders.map((order) => ({
+      id: order.id,
+      orderNumber: order.orderNumber,
+      status: order.status,
+      totalAmount: order.totalAmount,
+      subtotal: order.subtotal,
+      depositAmount: order.depositAmount,
+      deliveryFee: order.deliveryFee,
+      platformFee: order.platformFee,
+      taxAmount: order.taxAmount,
+      createdAt: order.createdAt.toISOString(),
+      startDate: order.rentalStartDate.toISOString(),
+      endDate: order.rentalEndDate.toISOString(),
+      shippingAddress: order.shippingAddress,
+      customerNote: order.customerNote,
+      customer: {
+        name: order.customer.user.name || "Unknown",
+        email: order.customer.user.email,
+        image: order.customer.user.image,
+        phone: order.customer.phone,
+      },
+      items: order.items.map((item) => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.productName,
+        productImage: item.productImage,
+        quantity: 1,
+        price: item.subtotal,
+        rentalDays: item.rentalDays,
+      })),
+      payment: order.payment
+        ? {
+          status: order.payment.status,
+          method: order.payment.method,
+        }
+        : null,
+    }));
+
+    return NextResponse.json({ orders: transformedOrders });
   } catch (error) {
     console.error("Error fetching vendor orders:", error);
     return NextResponse.json(

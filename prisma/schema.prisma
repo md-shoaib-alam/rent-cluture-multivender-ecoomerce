@@ -467,7 +467,7 @@ model RentalItem {
   variantId       String?
   
   productName     String
-  productImage    String
+  productImage    String   @db.Text
   variantSize     String?
   variantColor    String?
   

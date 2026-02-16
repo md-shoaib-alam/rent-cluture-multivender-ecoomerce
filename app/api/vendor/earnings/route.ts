@@ -20,11 +20,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Vendor not found" }, { status: 404 });
     }
 
-    // Get all completed rentals for this vendor
+    // Get all completed rentals for this vendor (that have been delivered/returned)
     const rentals = await prisma.rental.findMany({
       where: {
         vendorId: vendor.id,
-        status: { in: ["DELIVERED", "ACTIVE", "RETURNED"] },
+        status: { in: ["DELIVERED", "ACTIVE", "RETURNED"] as any },
       },
       include: {
         items: true,
@@ -32,48 +32,74 @@ export async function GET(request: Request) {
       },
     });
 
-    // Calculate earnings
-    const totalEarnings = rentals.reduce((sum: number, rental: typeof rentals[number]) => {
+    // Calculate total earnings (before platform fee)
+    const totalEarnings = rentals.reduce((sum: number, rental) => {
       const rentalTotal = Number(rental.totalAmount);
       const platformFee = Number(rental.platformFee);
+      // Vendor gets totalAmount - platformFee
       return sum + (rentalTotal - platformFee);
     }, 0);
 
-    const pendingPayouts = rentals
-      .filter((r: typeof rentals[number]) => r.status === "ACTIVE" || r.status === "DELIVERED")
-      .reduce((sum: number, rental: typeof rentals[number]) => {
-        const rentalTotal = Number(rental.totalAmount);
-        const platformFee = Number(rental.platformFee);
-        return sum + (rentalTotal - platformFee);
-      }, 0);
-
-    // Get payouts
-    const payouts = await prisma.payout.findMany({
-      where: { vendorId: vendor.id },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    });
-
-    // Monthly earnings breakdown
-    const monthlyEarnings = await prisma.rental.groupBy({
-      by: ["createdAt"],
+    // Get all completed payouts
+    const completedPayouts = await prisma.payout.findMany({
       where: {
         vendorId: vendor.id,
-        status: { in: ["DELIVERED", "ACTIVE", "RETURNED"] },
+        status: "COMPLETED",
       },
-      _sum: {
-        totalAmount: true,
-        platformFee: true,
+    });
+
+    // Calculate total paid out
+    const totalPaidOut = completedPayouts.reduce((sum: number, payout) => {
+      return sum + Number(payout.amount);
+    }, 0);
+
+    // Calculate pending balance (earnings - paid out)
+    const pendingBalance = totalEarnings - totalPaidOut;
+
+    // Get pending payouts (not yet paid)
+    const pendingPayoutsList = await prisma.payout.findMany({
+      where: {
+        vendorId: vendor.id,
+        status: { in: ["PENDING", "PROCESSING"] },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const pendingPayoutAmount = pendingPayoutsList.reduce((sum: number, payout) => {
+      return sum + Number(payout.amount);
+    }, 0);
+
+    // Get all payouts for history
+    const allPayouts = await prisma.payout.findMany({
+      where: { vendorId: vendor.id },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+
+    // Get rental stats
+    const activeRentals = await prisma.rental.count({
+      where: {
+        vendorId: vendor.id,
+        status: "ACTIVE",
+      },
+    });
+
+    const totalSales = await prisma.rental.count({
+      where: {
+        vendorId: vendor.id,
+        status: { in: ["DELIVERED", "ACTIVE", "RETURNED"] as any },
       },
     });
 
     return NextResponse.json({
       totalEarnings,
-      pendingPayouts,
-      totalSales: vendor.totalSales,
+      totalPaidOut,
+      pendingBalance,
+      pendingPayoutAmount,
+      activeRentals,
+      totalSales,
       rating: Number(vendor.rating),
-      payouts,
-      rentals: rentals.length,
+      payouts: allPayouts,
       bankDetails: {
         bankName: vendor.bankName,
         bankAccount: vendor.bankAccount,

@@ -22,11 +22,13 @@ interface BankDetails {
 
 interface EarningsData {
   totalEarnings: number;
-  pendingPayouts: number;
+  totalPaidOut: number;
+  pendingBalance: number;
+  pendingPayoutAmount: number;
+  activeRentals: number;
   totalSales: number;
   rating: number;
   payouts: Payout[];
-  rentals: number;
   bankDetails?: BankDetails;
 }
 
@@ -78,7 +80,7 @@ export default function VendorEarningsPage() {
     }
 
     // Check for insufficient funds
-    if (amount > (data?.pendingPayouts || 0)) {
+    if (amount > (data?.pendingBalance || 0)) {
       setShowWithdrawModal(false);
       setShowInsufficientModal(true);
       return;
@@ -191,7 +193,7 @@ export default function VendorEarningsPage() {
             <div>
               <p className="text-sm text-gray-500 font-medium">Available Balance</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
-                ₹{data?.pendingPayouts?.toLocaleString() || 0}
+                ₹{data?.pendingBalance?.toLocaleString() || 0}
               </p>
             </div>
             <div className="p-3 rounded-full bg-yellow-50 text-yellow-600">
@@ -362,7 +364,7 @@ export default function VendorEarningsPage() {
                 </div>
                 <div className="mt-2 flex justify-between items-center text-sm">
                   <span className="text-gray-600">Available Balance:</span>
-                  <span className="font-bold text-green-600">₹{data?.pendingPayouts?.toLocaleString() || 0}</span>
+                  <span className="font-bold text-green-600">₹{data?.pendingBalance?.toLocaleString() || 0}</span>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">Minimum withdrawal: ₹100</p>
               </div>
@@ -408,7 +410,7 @@ export default function VendorEarningsPage() {
               <h3 className="text-lg font-bold text-gray-900">Insufficient Balance</h3>
               <p className="text-sm text-gray-500 mt-2">
                 You don't have enough balance to withdraw ₹{Number(withdrawAmount).toLocaleString()}. 
-                Your available balance is ₹{data?.pendingPayouts?.toLocaleString() || 0}.
+                Your available balance is ₹{data?.pendingBalance?.toLocaleString() || 0}.
               </p>
             </div>
             <div className="p-6 pt-0">

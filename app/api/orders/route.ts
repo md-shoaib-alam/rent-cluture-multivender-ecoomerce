@@ -139,13 +139,25 @@ export async function POST(request: Request) {
         },
       });
 
+      // Parse images from JSON field
+      let productImage = "";
+      try {
+        const imagesArray = typeof product.images === 'string' 
+          ? JSON.parse(product.images) 
+          : product.images;
+        productImage = Array.isArray(imagesArray) ? imagesArray[0] || "" : "";
+      } catch (e) {
+        console.error("Error parsing product images:", e);
+        productImage = "";
+      }
+
       await tx.rentalItem.create({
         data: {
           rentalId: newRental.id,
           productId,
           variantId,
           productName: product.name,
-          productImage: (product.images as string[])[0] || "",
+          productImage: productImage,
           variantSize: null,
           variantColor: null,
           dailyPrice,
@@ -178,8 +190,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, rental });
   } catch (error) {
     console.error("Error creating order:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to create order" },
+      { error: "Failed to create order", details: errorMessage },
       { status: 500 }
     );
   }

@@ -97,31 +97,28 @@ export default function VendorSettingsPage() {
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab("profile")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "profile"
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "profile"
                 ? "border-blue-500 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
+              }`}
           >
             Business Profile
           </button>
           <button
             onClick={() => setActiveTab("payment")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "payment"
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "payment"
                 ? "border-blue-500 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
+              }`}
           >
             Payment Settings
           </button>
           <button
             onClick={() => setActiveTab("notifications")}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === "notifications"
+            className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "notifications"
                 ? "border-blue-500 text-blue-600"
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-            }`}
+              }`}
           >
             Notifications
           </button>
@@ -145,7 +142,7 @@ export default function VendorSettingsPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, businessName: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div>
@@ -158,7 +155,7 @@ export default function VendorSettingsPage() {
                   setFormData({ ...formData, description: e.target.value })
                 }
                 rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div>
@@ -171,7 +168,7 @@ export default function VendorSettingsPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, phone: e.target.value })
                 }
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
             </div>
             <div className="flex justify-end">
@@ -208,7 +205,7 @@ export default function VendorSettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, businessName: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   placeholder="Name as per bank records"
                 />
               </div>
@@ -222,7 +219,7 @@ export default function VendorSettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, bankName: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   placeholder="e.g., State Bank of India"
                 />
               </div>
@@ -236,7 +233,7 @@ export default function VendorSettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, bankAccount: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   placeholder="Enter your account number"
                 />
               </div>
@@ -246,7 +243,7 @@ export default function VendorSettingsPage() {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                   placeholder="Re-enter account number"
                 />
               </div>
@@ -260,7 +257,7 @@ export default function VendorSettingsPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, bankRouting: e.target.value.toUpperCase() })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent uppercase text-gray-900"
                   placeholder="e.g., SBIN0001234"
                   maxLength={11}
                 />
@@ -272,7 +269,7 @@ export default function VendorSettingsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Account Type
                 </label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900">
                   <option value="savings">Savings Account</option>
                   <option value="current">Current Account</option>
                 </select>

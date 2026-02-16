@@ -188,7 +188,7 @@ export default function VendorDashboardPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{Number(order.totalAmount).toLocaleString()}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <Link href={`/dashboard/vendor/orders/${order.id}`} className="text-rose-600 hover:text-rose-900">
+                      <Link href={`/dashboard/vendor/orders?order=${order.id}`} className="text-rose-600 hover:text-rose-900">
                         <Eye className="h-4 w-4" />
                       </Link>
                     </td>

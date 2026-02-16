@@ -5,13 +5,22 @@ import { redirect, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Package, Clock, CreditCard, User, Star, Menu, X, Home, LogOut, MapPin } from "lucide-react";
+import { Package, Clock, CreditCard, User, Star, Menu, X, Home, LogOut, MapPin, Loader2 } from "lucide-react";
 import { signOut } from "next-auth/react";
+
+interface RentalStats {
+  active: number;
+  upcoming: number;
+  pending: number;
+  total: number;
+}
 
 export default function CustomerDashboard() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [stats, setStats] = useState<RentalStats>({ active: 0, upcoming: 0, pending: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
 
   // Redirect vendors to vendor dashboard
   useEffect(() => {
@@ -19,6 +28,21 @@ export default function CustomerDashboard() {
       router.push("/dashboard/vendor");
     }
   }, [status, session, router]);
+
+  // Fetch rental stats
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetch("/api/user/rentals")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.stats) {
+            setStats(data.stats);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch stats:", err))
+        .finally(() => setLoading(false));
+    }
+  }, [status]);
 
   if (status === "loading") {
     return (
@@ -196,7 +220,7 @@ export default function CustomerDashboard() {
                 </div>
                 <div>
                   <p className="text-xs lg:text-sm text-gray-800">Active Rentals</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{loading ? "-" : stats.active}</p>
                 </div>
               </div>
             </div>
@@ -207,18 +231,18 @@ export default function CustomerDashboard() {
                 </div>
                 <div>
                   <p className="text-xs lg:text-sm text-gray-800">Upcoming</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{loading ? "-" : stats.upcoming}</p>
                 </div>
               </div>
             </div>
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 lg:p-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 lg:p-3 bg-purple-100 rounded-lg">
-                  <Star className="h-5 w-5 lg:h-6 lg:w-6 text-purple-600" />
+                <div className="p-2 lg:p-3 bg-yellow-100 rounded-lg">
+                  <Clock className="h-5 w-5 lg:h-6 lg:w-6 text-yellow-600" />
                 </div>
                 <div>
-                  <p className="text-xs lg:text-sm text-gray-800">Reviews</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">0</p>
+                  <p className="text-xs lg:text-sm text-gray-800">Pending</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{loading ? "-" : stats.pending}</p>
                 </div>
               </div>
             </div>
@@ -228,8 +252,8 @@ export default function CustomerDashboard() {
                   <CreditCard className="h-5 w-5 lg:h-6 lg:w-6 text-rose-600" />
                 </div>
                 <div>
-                  <p className="text-xs lg:text-sm text-gray-800">Wallet</p>
-                  <p className="text-lg lg:text-2xl font-bold text-gray-900">₹0</p>
+                  <p className="text-xs lg:text-sm text-gray-800">Total Orders</p>
+                  <p className="text-lg lg:text-2xl font-bold text-gray-900">{loading ? "-" : stats.total}</p>
                 </div>
               </div>
             </div>
